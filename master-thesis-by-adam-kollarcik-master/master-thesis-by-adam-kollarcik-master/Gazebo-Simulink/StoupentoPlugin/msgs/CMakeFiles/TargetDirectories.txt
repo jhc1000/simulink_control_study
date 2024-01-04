@@ -1,0 +1,6 @@
+/home/kollaada/stoupentoPlugin/msgs/CMakeFiles/rebuild_cache.dir
+/home/kollaada/stoupentoPlugin/msgs/CMakeFiles/edit_cache.dir
+/home/kollaada/stoupentoPlugin/msgs/CMakeFiles/stoupentoPlugin.dir
+/home/kollaada/stoupentoPlugin/msgs/msgs/CMakeFiles/rebuild_cache.dir
+/home/kollaada/stoupentoPlugin/msgs/msgs/CMakeFiles/edit_cache.dir
+/home/kollaada/stoupentoPlugin/msgs/msgs/CMakeFiles/stoupentoPlugin_msgs.dir

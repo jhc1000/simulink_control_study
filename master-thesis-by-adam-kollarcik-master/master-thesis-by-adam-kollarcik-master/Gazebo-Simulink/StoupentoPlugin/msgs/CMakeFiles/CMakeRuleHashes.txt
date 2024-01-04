@@ -1,0 +1,6 @@
+# Hashes of file build rules.
+1052b9c988199376a7d58396ba60bf17 msgs/controlCommand.pb.h
+7b718c11e33229b200d9deb3afb97f2f msgs/header.pb.h
+31dd0919c68d91ec59f148453b19ab7a msgs/stoupento_mesurement.pb.h
+ef48dbe25478abe3feab49f26566c69e msgs/time.pb.h
+d36a1b8a46793d27523efde83b57a935 msgs/vector2d.pb.h

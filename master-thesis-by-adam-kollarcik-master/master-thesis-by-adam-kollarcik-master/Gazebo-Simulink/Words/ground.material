@@ -1,0 +1,16 @@
+material GroundTexture
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        // Relative to the location of the material script
+        texture concrete.jpg
+        // Repeat the texture over the surface (4 per face)
+        scale 0.03 0.03
+      }
+    }
+  }
+}

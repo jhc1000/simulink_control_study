@@ -1,0 +1,32 @@
+package stoupentoPlugin_msgs.msgs;
+import "vector3d.proto";
+
+message StoupentoMesurement
+{
+  required double                 left_wheel_vel  = 1;
+  required double                 left_joint1_vel  = 2;
+  required double                 left_joint2_vel  = 3;
+  required double                 left_joint3_vel  = 4;
+  required double                 left_joint4_vel  = 5;
+  required double                 left_wheel_ang  = 6;
+  required double                 left_joint1_ang  = 7;
+  required double                 left_joint2_ang  = 8;
+  required double                 left_joint3_ang  = 9;
+  required double                 left_joint4_ang  = 10;
+  required double                 left_wheel_torque = 11;
+  required double                 left_body_torque = 12;
+  required double                 right_wheel_vel  = 13;
+  required double                 right_joint1_vel  = 14;
+  required double                 right_joint2_vel  = 15;
+  required double                 right_joint3_vel  = 16;
+  required double                 right_joint4_vel  = 17;
+  required double                 right_wheel_ang  = 18;
+  required double                 right_joint1_ang  = 19;
+  required double                 right_joint2_ang  = 20;
+  required double                 right_joint3_ang  = 21;
+  required double                 right_joint4_ang  = 22;
+  required double                 right_wheel_torque = 23;
+  required double                 right_body_torque = 24;
+  required gazebo.msgs.Vector3d               linear_acc  = 25;
+  required gazebo.msgs.Vector3d               angular_vel  = 26;
+}
