@@ -17,7 +17,9 @@ axis image
 % title('Trajectory PD Control');
 % title('Trajectory CTC');
 % title('Trajectory SMC model');
-title('Trajectory model DOB');
+% title('Trajectory model DOB');
+% title('Trajectory model no-MOB');
+title('Trajectory model MOB');
 xlabel('x axis(m)');ylabel('y axis(m)');zlabel('z axis(m)');
 
 plot3(xd, yd, zd, '--');

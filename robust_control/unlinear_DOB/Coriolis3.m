@@ -7,4 +7,5 @@ h2 = (1/3*m3*l2^2*sin(q2)*cos(q2)+1/3*m3*l3^2*cos(q2+q3)*sin(q2+q3)+1/2*m3*l2*l3
     +m3*l2^2*sin(q2)*cos(q2))*dotq1^2 - m3*l2*l3*sin(q3)*dotq2*dotq3 - 1/2*m3*l2*l3*sin(q3)*dotq2^2;
 h3 = (1/3*m3*l3^2*sin(q2+q3)*cos(q2+q3)+1/2*m3*l2*l3*cos(q2)*sin(q2+q3))*dotq1^2 +(1/2*m3*l2*l3*sin(q3))*dotq2^2;
 h = [h1;h2;h3];
+
 end
