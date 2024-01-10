@@ -54,6 +54,6 @@ xrange = [-0.2 0.2]; %% xlims9
 yrange = [-0.1 0.6];%% ylims
 secondMonitor = false; %% display animation on second monitor
 
- drawStoupento2D(t,y,params,xrange,yrange,configOnly,record,secondMonitor)
+drawStoupento2D(t,y,params,xrange,yrange,configOnly,record,secondMonitor)
 % drawStoupento2D(t,y(:,3:end),params,xrange,yrange,configOnly,record)%DAE animation
  
