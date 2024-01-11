@@ -12,7 +12,7 @@ Ac = [Ac1 Ac2; Ac3 Ac4]
 Cc = [eye(3) zeros(3)]
 v = 0.001*ones(n,1);
 Rc = diag(v)
-w = 0.001*[zeros(n,1); ones(n,1)];
+w = 0.01*[ones(n,1); ones(n,1)];
 Qc = diag(w)
 
 %   X = Riccati(A,G,Q) solves the algebraic Riccati equation of the form:
