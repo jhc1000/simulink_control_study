@@ -1,6 +1,6 @@
-close all
-clear all
-clc
+close all;
+clear all;
+clc;
 
 % Parameter
 self.q = [0, 0, 0]';

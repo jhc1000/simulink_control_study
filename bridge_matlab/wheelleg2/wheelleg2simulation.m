@@ -303,29 +303,29 @@ end
 
 hold on
 for k = 1:length(t)
-%     self.p = [self.p(1)+0.3*k, 0, -100+50*sin(pi/5*k)]';
-%     for i = 1:4
-%         p.g_w{i} = p.g_w{i} + [0.3*k, 0, 0]';
-%     end
-%     self.q = [0, -0.2*cos(pi/5*k), 0]';
+    self.p = [self.p(1)+0.3*k, 0, -100+50*sin(pi/5*k)]';
+    for i = 1:4
+        p.g_w{i} = p.g_w{i} + [0.3*k, 0, 0]';
+    end
+    self.q = [0, -0.2*cos(pi/5*k), 0]';
 
-%     self.p = [0, 0, -100+15*sin(pi/4*k)]';
-%     p.g_w{1} = a{1} + [0, 0, n1(1)*n2(1)*30*cos(pi/4*k)]';
-%     p.g_w{2} = a{2} + [0, 0, n1(2)*n2(2)*30*sin(pi/4*k)]';
-%     p.g_w{3} = a{3} + [0, 0, n1(3)*n2(3)*30*cos(pi/4*k)]';
-%     p.g_w{4} = a{4} + [0, 0, n1(4)*n2(4)*30*sin(pi/4*k)]';
+    self.p = [0, 0, -100+15*sin(pi/4*k)]';
+    p.g_w{1} = a{1} + [0, 0, n1(1)*n2(1)*30*cos(pi/4*k)]';
+    p.g_w{2} = a{2} + [0, 0, n1(2)*n2(2)*30*sin(pi/4*k)]';
+    p.g_w{3} = a{3} + [0, 0, n1(3)*n2(3)*30*cos(pi/4*k)]';
+    p.g_w{4} = a{4} + [0, 0, n1(4)*n2(4)*30*sin(pi/4*k)]';
     
 
-%     self.p = [0, 0, -100+50*sin(pi/5*k)]';
-%     self.q = [0, -0.2*cos(pi/5*k), 0]';
-%     self.q = [0, 0, 0.05*sin(pi/5*k)]';
-%     self.q = [0.01*sin(pi/5*k), 0, 0]';
+    self.p = [0, 0, -100+50*sin(pi/5*k)]';
+    self.q = [0, -0.2*cos(pi/5*k), 0]';
+    self.q = [0, 0, 0.05*sin(pi/5*k)]';
+    self.q = [0.01*sin(pi/5*k), 0, 0]';
 
-%     % base movement
-%     Rg_b = rotz(self.q(3))*roty(self.q(2))*rotx(self.q(1));
-%     for i = 1:4
-%         p.b_w{i} = inv(Rg_b)*(p.g_w{i} - self.p);
-%     end
+    % base movement
+    Rg_b = rotz(self.q(3))*roty(self.q(2))*rotx(self.q(1));
+    for i = 1:4
+        p.b_w{i} = inv(Rg_b)*(p.g_w{i} - self.p);
+    end
 
     q = InverseKinematics2(p,self);
     p = ForwardKinematics2(q,self);
