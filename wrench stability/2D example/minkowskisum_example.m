@@ -13,7 +13,7 @@ plot(MSumShape)
 hold off
 
 figure(2);
-Pa = polyshape([0 0;1 0;1 1;0 1]);
+Pa = polyshape([0 0;1 0;1 1;0 1]); %%input vertex of polyshape
 plot(Pa)
 hold on
 MSumShape = minkowskiSum(Pa,Pa);
