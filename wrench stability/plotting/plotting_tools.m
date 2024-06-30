@@ -74,7 +74,7 @@ classdef plotting_tools
                                         -self.model.RH_tau_lim(1) -self.model.RH_tau_lim(1) -self.model.RH_tau_lim(3)];
             
             figure;
-            title('WLAR Force Polytope')
+            title('WLAR Force Polytope');
             for i=1:4
                 self.psuedo_inverse_jacobian(:,:,i) = (self.Jacobian_b(:,:,i)*self.Jacobian_b(:,:,i).')\self.Jacobian_b(:,:,i);
                 for j=1:8
