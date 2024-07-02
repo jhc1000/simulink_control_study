@@ -27,12 +27,13 @@ self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
 
 % self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
+% self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hr = [deg2rad(5); deg2rad(-5); deg2rad(-5); deg2rad(5)];
 self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
-% self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
-self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
+self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
+% self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
 self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
 self.q.asc = zeros(2,1);
 
@@ -81,7 +82,6 @@ self.leg_torque_space(:,:,4) = [self.model.RH_tau_lim(1) self.model.RH_tau_lim(2
 for i=1:4
     self.psuedo_inverse_jacobian(:,:,i) = (self.Jacobian_b(:,:,i)*self.Jacobian_b(:,:,i).')\self.Jacobian_b(:,:,i);
     for j=1:8
-        % self.leg_force_wrench_polytope(j,:,i) = 0.0001.*(self.psuedo_inverse_jacobian(:,:,i)*self.leg_torque_space(j,:,i).').';
         self.leg_force_wrench_polytope(j,:,i) = (self.psuedo_inverse_jacobian(:,:,i)*self.leg_torque_space(j,:,i).').';
         self.leg_force_polytope(j,:,i) = [self.leg_force_wrench_polytope(j,1,i) self.leg_force_wrench_polytope(j,2,i) self.leg_force_wrench_polytope(j,3,i)];
     end
@@ -115,7 +115,6 @@ self.leg_friction_space(:,:,4) = 10000.*[self.mu self.mu 1.0;
 
 for i=1:4
     for j=1:5
-        % self.leg_contact_wrench_polytope(j,:,i) = 0.25.*self.leg_friction_space(j,:,i).';
         self.leg_contact_wrench_polytope(j,:,i) = self.leg_friction_space(j,:,i).';
         self.leg_friction_polytope(j,:,i) = [self.leg_contact_wrench_polytope(j,1,i) self.leg_contact_wrench_polytope(j,2,i) self.leg_contact_wrench_polytope(j,3,i)];
     end
@@ -124,9 +123,9 @@ end
 %% Total Force Polytope
 for i=1:4
     if i == 1
-        self.leg_force_polytope_total = [self.leg_force_wrench_polytope(:,1,i) self.leg_force_wrench_polytope(:,2,i) self.leg_force_wrench_polytope(:,3,i)];
+        self.leg_force_polytope_total = [self.leg_force_wrench_polytope(:,1,i) self.leg_force_wrench_polytope(:,5,i) self.leg_force_wrench_polytope(:,3,i)];
     else
-        self.leg_force_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total,[self.leg_force_wrench_polytope(:,1,i) self.leg_force_wrench_polytope(:,2,i) self.leg_force_wrench_polytope(:,3,i)]);
+        self.leg_force_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total,[self.leg_force_wrench_polytope(:,1,i) self.leg_force_wrench_polytope(:,5,i) self.leg_force_wrench_polytope(:,3,i)]);
     end
 end
 
@@ -134,11 +133,11 @@ end
 K1 = convhull(self.leg_force_polytope_total(:, 1), self.leg_force_polytope_total(:, 2), self.leg_force_polytope_total(:, 3));
 
 % Plot the result
-figure;
-trisurf(K1, self.leg_force_polytope_total(:,1),self.leg_force_polytope_total(:,2),self.leg_force_polytope_total(:,3), 'FaceColor', 'green');
-xlabel("F_x [N]");ylabel("F_y [N]");ylabel("F_z [N]");
-title('Convex Hull of Total Force Polytope');
-axis equal;
+% figure;
+% trisurf(K1, self.leg_force_polytope_total(:,1),self.leg_force_polytope_total(:,2),self.leg_force_polytope_total(:,3), 'FaceColor', 'green');
+% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+% title('Convex Hull of Total Force Polytope');
+% axis equal;
 
 %% Total Friction Polytope
 for i=1:4
@@ -153,11 +152,11 @@ end
 K2 = convhull(self.leg_friction_polytope_total(:, 1), self.leg_friction_polytope_total(:, 2), self.leg_friction_polytope_total(:, 3));
 
 % Plot the result
-figure;
-trisurf(K2, self.leg_friction_polytope_total(:,1),self.leg_friction_polytope_total(:,2),self.leg_friction_polytope_total(:,3), 'FaceColor', 'red');
-xlabel("F_x [N]");ylabel("F_y [N]");ylabel("F_z [N]");
-title('Convex Hull of Total Friction Polytope');
-axis equal;
+% figure;
+% trisurf(K2, self.leg_friction_polytope_total(:,1),self.leg_friction_polytope_total(:,2),self.leg_friction_polytope_total(:,3), 'FaceColor', 'red');
+% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+% title('Convex Hull of Total Friction Polytope');
+% axis equal;
 
 %% Total Feasible force Polytope
 % self.leg_feasible_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total,self.leg_friction_polytope_total);
@@ -172,24 +171,27 @@ intersection = intersect(P1, P2);
 % Plot the first convex hull
 figure
 subplot(1,3,1)
-P1.plot('color', 'red', 'alpha', 0.5);
+P1.plot('color', 'green', 'alpha', 0.5);
 title('Force Polytope')
-xlabel("F_x [N]");ylabel("F_y [N]");ylabel("F_z [N]");
+xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
 axis equal
+view(45,45);
 
 % Plot the second convex hull
 subplot(1,3,2)
-P2.plot('color', 'blue', 'alpha', 0.5);
+P2.plot('color', 'red', 'alpha', 0.5);
 title('Friction Polytope')
-xlabel("F_x [N]");ylabel("F_y [N]");ylabel("F_z [N]");
+xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
 axis equal
+view(45,45);
 
 % Plot the intersection
 subplot(1,3,3)
-intersection.plot('color', 'green', 'alpha', 0.5);
+intersection.plot('color', 'blue', 'alpha', 0.5);
 title('Feasible Polytope')
-xlabel("F_x [N]");ylabel("F_y [N]");ylabel("F_z [N]");
+xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
 axis equal
+view(45,45);
 
 
 %% plotting

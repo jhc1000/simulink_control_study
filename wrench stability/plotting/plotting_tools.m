@@ -131,14 +131,14 @@ classdef plotting_tools
                 %     self.leg_force_polytope(j,:,i) = [self.leg_wrench_polytope(j,1,i) self.leg_wrench_polytope(j,2,i) self.leg_wrench_polytope(j,3,i)];
                 % end
                 subplot(2,2,i);
-                plot3(self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,2,i), self.leg_force_wrench_polytope(:,3,i),".","Color","r","MarkerSize",10)
+                plot3(self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,5,i), self.leg_force_wrench_polytope(:,3,i),".","Color","r","MarkerSize",10)
                 % plot(alphaShape(self.leg_force_polytope(:,:,i)));
-                [k1,av1] = convhull(self.leg_force_polytope(:,:,i));
-                trisurf(k1,self.leg_force_polytope(:,1,i),self.leg_force_polytope(:,2,i),self.leg_force_polytope(:,3,i),'FaceColor','green')
+                [k1,av1] = convhull([self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,5,i), self.leg_force_wrench_polytope(:,3,i)]);
+                trisurf(k1,self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,5,i), self.leg_force_wrench_polytope(:,3,i),'FaceColor','green')
                 axis equal; grid on; 
                 % view(90,90);
                 % view(0,0);
-                xlabel("f_x");ylabel("f_y");zlabel("f_z");
+                xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
                
             end
         end
@@ -151,12 +151,12 @@ classdef plotting_tools
             for i=1:4
                 subplot(2,2,i);
                 plot3(self.leg_contact_wrench_polytope(:,1,i), self.leg_contact_wrench_polytope(:,2,i), self.leg_contact_wrench_polytope(:,3,i),".","Color","r","MarkerSize",10)
-                [k2,av2] = convhull(self.leg_friction_polytope(:,:,i));
-                trisurf(k2,self.leg_friction_polytope(:,1,i),self.leg_friction_polytope(:,2,i),self.leg_friction_polytope(:,3,i),'FaceColor','r')
+                [k2,av2] = convhull([self.leg_contact_wrench_polytope(:,1,i), self.leg_contact_wrench_polytope(:,2,i), self.leg_contact_wrench_polytope(:,3,i)]);
+                trisurf(k2,self.leg_contact_wrench_polytope(:,1,i), self.leg_contact_wrench_polytope(:,2,i), self.leg_contact_wrench_polytope(:,3,i),'FaceColor','r')
                 axis equal; grid on; 
                 % view(90,90);
                 % view(0,0);
-                xlabel("f_x");ylabel("f_y");zlabel("f_z");
+                xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
                
             end
         end

@@ -78,13 +78,13 @@ classdef wlar_kinematics
                 self.T.k_w(:,:,i) = math_tools.homogeneous_matrix(self.R.k_w(:,:,i),self.p.k_w(:,i));
 
                 self.T.b_w(:,:,i) = self.T.b_hr(:,:,i)*self.T.hr_hp(:,:,i)*self.T.hp_k(:,:,i)*self.T.k_w(:,:,i);
-                self.p.b_w(:,i) = self.T.b_w(:,4,i);
+                self.p.b_w(:,i) = self.T.b_w(1:3,4,i);
                 
                 self.T.b_k(:,:,i) = self.T.b_hr(:,:,i)*self.T.hr_hp(:,:,i)*self.T.hp_k(:,:,i);
-                self.p.b_k(:,i) = self.T.b_k(:,4,i);
+                self.p.b_k(:,i) = self.T.b_k(1:3,4,i);
 
                 self.T.b_hp(:,:,i) = self.T.b_hr(:,:,i)*self.T.hr_hp(:,:,i);
-                self.p.b_hp(:,i) = self.T.b_hp(:,4,i);
+                self.p.b_hp(:,i) = self.T.b_hp(1:3,4,i);
         
                 % Space Coordinate
                 self.R.s_hr(:,:,i) = self.R.s_b*self.R.b_hr(:,:,i);
@@ -93,16 +93,16 @@ classdef wlar_kinematics
                 self.R.s_w(:,:,i) = self.R.s_b*self.R.b_hr(:,:,i)*self.R.hr_hp(:,:,i)*self.R.hp_k(:,:,i)*self.R.k_w(:,:,i);
 
                 self.T.s_hr(:,:,i) = self.T.s_b*self.T.b_hr(:,:,i);
-                self.p.s_hr(:,i) = self.T.s_hr(:,4,i);
+                self.p.s_hr(:,i) = self.T.s_hr(1:3,4,i);
                 
                 self.T.s_hp(:,:,i) = self.T.s_b*self.T.b_hp(:,:,i);
-                self.p.s_hp(:,i) = self.T.s_hp(:,4,i);
+                self.p.s_hp(:,i) = self.T.s_hp(1:3,4,i);
                 
                 self.T.s_k(:,:,i) = self.T.s_b*self.T.b_k(:,:,i);
-                self.p.s_k(:,i) = self.T.s_k(:,4,i);
+                self.p.s_k(:,i) = self.T.s_k(1:3,4,i);
                 
                 self.T.s_w(:,:,i) = self.T.s_b*self.T.b_w(:,:,i);
-                self.p.s_w(:,i) = self.T.s_w(:,4,i);
+                self.p.s_w(:,i) = self.T.s_w(1:3,4,i);
             end
         end
         function self = Jacobians(self, dot_q_base, dot_p_base)
