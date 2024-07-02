@@ -1,14 +1,14 @@
 classdef wlar_kinematics
     properties
-        x_b2hr = 0.2576;  % b2hr
-        z_b2hr = 0.0;    % b2hr
-        z_hr2hp = 0.0636; % hr2hp
-        z_hp2k = 0.300;   % hp2k
-        z_k2w = 0.310;    % k2w
-        y_b2hr = 0.065;   % b2hr
-        y_hr2hp = 0.070;  % hr2hp
-        y_hp2k = 0.029;   % hp2k
-        y_k2w = 0.066;    % k2w
+        x_b2hr = 0.2515;  % b2hr
+        z_b2hr = 0.0605;    % b2hr
+        z_hr2hp = 0.094; % hr2hp
+        z_hp2k = 0.30116;   % hp2k
+        z_k2w = 0.31884;    % k2w
+        y_b2hr = 0.288;   % b2hr
+        y_hr2hp = 0.09885;  % hr2hp
+        y_hp2k = 0.001;   % hp2k
+        y_k2w = 0.039;    % k2w
         % n1 = [1; 1; -1; -1];
         % n2 = [1; -1; 1; -1];
         % 
@@ -18,15 +18,15 @@ classdef wlar_kinematics
     end
     methods
         function self = init(~, self)
-            self.x_b2hr = 0.2576;  % b2hr
-            self.z_b2hr = 0.0;     % b2hr
-            self.z_hr2hp = 0.0636; % hr2hp
-            self.z_hp2k = 0.300;   % hp2k
-            self.z_k2w = 0.310;    % k2w
-            self.y_b2hr = 0.065;   % b2hr
-            self.y_hr2hp = 0.070;  % hr2hp
-            self.y_hp2k = 0.029;   % hp2k
-            self.y_k2w = 0.066;    % k2w
+            self.x_b2hr = 0.2515;  % b2hr
+            self.z_b2hr = -0.0605;     % b2hr
+            self.z_hr2hp = 0.094; % hr2hp
+            self.z_hp2k = 0.30116;   % hp2k
+            self.z_k2w = 0.31884;    % k2w
+            self.y_b2hr = 0.288;   % b2hr
+            self.y_hr2hp = 0.09885;  % hr2hp
+            self.y_hp2k = 0.001;   % hp2k
+            self.y_k2w = 0.039;    % k2w
             self.n1 = [1; 1; -1; -1];
             self.n2 = [1; -1; 1; -1];
     
@@ -42,6 +42,9 @@ classdef wlar_kinematics
             self.R.hr_hp = zeros(3,3,4);
             self.R.hp_k = zeros(3,3,4);
             self.R.k_w = zeros(3,3,4);
+
+            self.ropeejector.position.b(:,:,1) = [0.389345; 0.159; 0.0];
+            self.ropeejector.position.b(:,:,2) = [0.389345; -0.159; 0.0];
 
         end
         
@@ -67,7 +70,7 @@ classdef wlar_kinematics
                 self.p.b_hr(:,i) = [self.n1(i)*(self.x_b2hr); self.n2(i)*(self.y_b2hr); -(self.z_b2hr)];
                 self.p.hr_hp(:,i) = [0.0; self.n2(i)*(self.y_hr2hp); -(self.z_hr2hp)];
                 self.p.hp_k(:,i) = [0.0; self.n2(i)*(self.y_hp2k); -(self.z_hp2k)];
-                self.p.k_w(:,i) = [0.0; -self.n2(i)*(self.y_k2w); -(self.z_hp2k)];
+                self.p.k_w(:,i) = [0.0; self.n2(i)*(self.y_k2w); -(self.z_hp2k)];
 
                 self.T.b_hr(:,:,i) = math_tools.homogeneous_matrix(self.R.b_hr(:,:,i),self.p.b_hr(:,i));
                 self.T.hr_hp(:,:,i) = math_tools.homogeneous_matrix(self.R.hr_hp(:,:,i),self.p.hr_hp(:,i));
@@ -136,6 +139,27 @@ classdef wlar_kinematics
 
                 self.Jacobian_b(:,:,i) = [self.J.b_hr(:,:,i) self.J.b_hp(:,:,i) self.J.b_k(:,:,i)];
                 self.Jacobian_s(:,:,i) = [self.J.s_hr(:,:,i) self.J.s_hp(:,:,i) self.J.s_k(:,:,i)];
+            end
+        end
+        function self = ascender_forward_kinematics(self, q_base, p_base)
+            import math_tools.*
+
+            self.R.s_b = math_tools.rpyToRot(q_base(1), q_base(2), q_base(3));
+            self.T.s_b = math_tools.homogeneous_matrix(self.R.g_b, p_base);
+       
+            for i = 1:2
+                % Base Coordinate  
+                self.R.b_ej(:,:,i) = rpyToRot(0.0, 0.0, 0.0);
+
+                self.p.b_ej(:,i) = self.ropeejector.position.b(:,:,i).';
+
+                self.T.b_ej(:,:,i) = math_tools.homogeneous_matrix(self.R.b_ej(:,:,i),self.p.b_ej(:,i));
+        
+                % Space Coordinate
+                self.R.s_ej(:,:,i) = self.R.s_b*self.R.b_ej(:,:,i);
+
+                self.T.s_ej(:,:,i) = self.T.s_b*self.T.b_ej(:,:,i);
+                self.p.s_ej(:,i) = self.T.s_ej(:,4,i);
             end
         end
     end
