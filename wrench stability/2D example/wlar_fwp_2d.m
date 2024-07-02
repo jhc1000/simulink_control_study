@@ -29,8 +29,8 @@ self.dot_p_base = [0.0; 0.0; 0.0];
 % self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
 % self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
-self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
-% self.q.hr = [deg2rad(5); deg2rad(-5); deg2rad(-5); deg2rad(5)];
+% self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
+self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
 % self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
 self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
 % self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
@@ -83,7 +83,7 @@ for i=1:4
     self.psuedo_inverse_jacobian(:,:,i) = (self.Jacobian_b(:,:,i)*self.Jacobian_b(:,:,i).')\self.Jacobian_b(:,:,i);
     for j=1:8
         self.leg_force_wrench_polytope(j,:,i) = (self.psuedo_inverse_jacobian(:,:,i)*self.leg_torque_space(j,:,i).').';
-        self.leg_force_polytope(j,:,i) = [self.leg_force_wrench_polytope(j,1,i) self.leg_force_wrench_polytope(j,5,i) self.leg_force_wrench_polytope(j,3,i)];
+        self.leg_force_polytope(j,:,i) = [self.leg_force_wrench_polytope(j,1,i) self.leg_force_wrench_polytope(j,2,i) self.leg_force_wrench_polytope(j,3,i)];
     end
 end
 %% GRF estimation
