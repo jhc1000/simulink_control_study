@@ -58,7 +58,7 @@ self = geometry_computation.compute_ascender_wrench_polytope(self);
 self.force_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total, self.ascender_force_polytope);
 
 %% Total Feasible force Polytope
-self.leg_feasible_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total,self.leg_friction_polytope_total);
+% self.leg_feasible_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total,self.leg_friction_polytope_total);
 
 % Create polyhedra from vertices
 P1 = Polyhedron(self.force_polytope_total);
