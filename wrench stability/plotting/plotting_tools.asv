@@ -72,91 +72,63 @@ classdef plotting_tools
             end
 
             for i=1:4
-                [k1,av1] = convhull(0.000025.*self.leg_force_polytope(:,:,i));
-                trisurf(k1,0.00025.*self.leg_force_polytope(:,1,i)+self.p.s_w(1,i),0.00025.*self.leg_force_polytope(:,2,i)+self.p.s_w(2,i),0.00025.*self.leg_force_polytope(:,3,i)+self.p.s_w(3,i),'FaceColor','green')
+                % [k1,av1] = convhull(0.000025.*self.leg_force_polytope(:,:,i));
+                % trisurf(k1,0.00025.*self.leg_force_polytope(:,1,i)+self.p.s_w(1,i),0.00025.*self.leg_force_polytope(:,2,i)+self.p.s_w(2,i),0.00025.*self.leg_force_polytope(:,3,i)+self.p.s_w(3,i),'FaceColor','green')
+                P1 = Polyhedron(self.p.s_w(:,i).'+0.00025.*self.leg_force_polytope(:,:,i));
+                P1.plot('color', 'green', 'alpha', 0.5);
             end
 
             for i=1:4
-                [k2,av2] = convhull(0.000025.*self.leg_friction_polytope(:,:,i));
-                trisurf(k2,0.000025.*self.leg_friction_polytope(:,1,i)+self.p.s_w(1,i),0.000025.*self.leg_friction_polytope(:,2,i)+self.p.s_w(2,i),0.000025.*self.leg_friction_polytope(:,3,i)+self.p.s_w(3,i),'FaceColor','r')
+                % [k2,av2] = convhull(0.000025.*self.leg_friction_polytope(:,:,i));
+                % trisurf(k2,0.000025.*self.leg_friction_polytope(:,1,i)+self.p.s_w(1,i),0.000025.*self.leg_friction_polytope(:,2,i)+self.p.s_w(2,i),0.000025.*self.leg_friction_polytope(:,3,i)+self.p.s_w(3,i),'FaceColor','r')
+                P2 = Polyhedron(self.p.s_w(:,i).'+0.000025.*self.leg_friction_polytope(:,:,i));
+                P2.plot('color', 'red', 'alpha', 0.5);
             end
             hold off
             
             xlabel('x [m]');ylabel('y [m]');zlabel('z [m]');        
         end
         function fig = plot_force_polytopes(self)
-            % %% force polytope
-            % self.leg_torque_space(:,:,1) = [self.model.LF_tau_lim(1) self.model.LF_tau_lim(2) self.model.LF_tau_lim(3);
-            %                             -self.model.LF_tau_lim(1) self.model.LF_tau_lim(2) self.model.LF_tau_lim(3);
-            %                             self.model.LF_tau_lim(1) -self.model.LF_tau_lim(2) self.model.LF_tau_lim(3);
-            %                             self.model.LF_tau_lim(1) self.model.LF_tau_lim(2) -self.model.LF_tau_lim(3);
-            %                             -self.model.LF_tau_lim(1) -self.model.LF_tau_lim(2) self.model.LF_tau_lim(3);
-            %                             self.model.LF_tau_lim(1) -self.model.LF_tau_lim(2) -self.model.LF_tau_lim(3);
-            %                             -self.model.LF_tau_lim(1) self.model.LF_tau_lim(2) -self.model.LF_tau_lim(3);
-            %                             -self.model.LF_tau_lim(1) -self.model.LF_tau_lim(1) -self.model.LF_tau_lim(3)];
-            % 
-            % self.leg_torque_space(:,:,2) = [self.model.RF_tau_lim(1) self.model.RF_tau_lim(2) self.model.RF_tau_lim(3);
-            %                             -self.model.RF_tau_lim(1) self.model.RF_tau_lim(2) self.model.RF_tau_lim(3);
-            %                             self.model.RF_tau_lim(1) -self.model.RF_tau_lim(2) self.model.RF_tau_lim(3);
-            %                             self.model.RF_tau_lim(1) self.model.RF_tau_lim(2) -self.model.RF_tau_lim(3);
-            %                             -self.model.RF_tau_lim(1) -self.model.RF_tau_lim(2) self.model.RF_tau_lim(3);
-            %                             self.model.RF_tau_lim(1) -self.model.RF_tau_lim(2) -self.model.RF_tau_lim(3);
-            %                             -self.model.RF_tau_lim(1) self.model.RF_tau_lim(2) -self.model.RF_tau_lim(3);
-            %                             -self.model.RF_tau_lim(1) -self.model.RF_tau_lim(1) -self.model.RF_tau_lim(3)];
-            % 
-            % self.leg_torque_space(:,:,3) = [self.model.LH_tau_lim(1) self.model.LH_tau_lim(2) self.model.LH_tau_lim(3);
-            %                             -self.model.LH_tau_lim(1) self.model.LH_tau_lim(2) self.model.LH_tau_lim(3);
-            %                             self.model.LH_tau_lim(1) -self.model.LH_tau_lim(2) self.model.LH_tau_lim(3);
-            %                             self.model.LH_tau_lim(1) self.model.LH_tau_lim(2) -self.model.LH_tau_lim(3);
-            %                             -self.model.LH_tau_lim(1) -self.model.LH_tau_lim(2) self.model.LH_tau_lim(3);
-            %                             self.model.LH_tau_lim(1) -self.model.LH_tau_lim(2) -self.model.LH_tau_lim(3);
-            %                             -self.model.LH_tau_lim(1) self.model.LH_tau_lim(2) -self.model.LH_tau_lim(3);
-            %                             -self.model.LH_tau_lim(1) -self.model.LH_tau_lim(1) -self.model.LH_tau_lim(3)];
-            % 
-            % self.leg_torque_space(:,:,4) = [self.model.RH_tau_lim(1) self.model.RH_tau_lim(2) self.model.RH_tau_lim(3);
-            %                             -self.model.RH_tau_lim(1) self.model.RH_tau_lim(2) self.model.RH_tau_lim(3);
-            %                             self.model.RH_tau_lim(1) -self.model.RH_tau_lim(2) self.model.RH_tau_lim(3);
-            %                             self.model.RH_tau_lim(1) self.model.RH_tau_lim(2) -self.model.RH_tau_lim(3);
-            %                             -self.model.RH_tau_lim(1) -self.model.RH_tau_lim(2) self.model.RH_tau_lim(3);
-            %                             self.model.RH_tau_lim(1) -self.model.RH_tau_lim(2) -self.model.RH_tau_lim(3);
-            %                             -self.model.RH_tau_lim(1) self.model.RH_tau_lim(2) -self.model.RH_tau_lim(3);
-            %                             -self.model.RH_tau_lim(1) -self.model.RH_tau_lim(1) -self.model.RH_tau_lim(3)];
+            self = geometry_computation.compute_force_wrench_polytope(self);
             
-            figure;
+            fig = figure;
             title('WLAR Force Polytope');
+            tiledlayout(2,1)
             for i=1:4
-                % self.psuedo_inverse_jacobian(:,:,i) = (self.Jacobian_b(:,:,i)*self.Jacobian_b(:,:,i).')\self.Jacobian_b(:,:,i);
-                % for j=1:8
-                %     self.leg_wrench_polytope(j,:,i) = (self.psuedo_inverse_jacobian(:,:,i)*self.leg_torque_space(j,:,i).').';
-                %     self.leg_force_polytope(j,:,i) = [self.leg_wrench_polytope(j,1,i) self.leg_wrench_polytope(j,2,i) self.leg_wrench_polytope(j,3,i)];
-                % end
                 subplot(2,2,i);
-                plot3(self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,2,i), self.leg_force_wrench_polytope(:,3,i),".","Color","r","MarkerSize",10)
-                % plot(alphaShape(self.leg_force_polytope(:,:,i)));
-                [k1,av1] = convhull(self.leg_force_polytope(:,:,i));
-                trisurf(k1,self.leg_force_polytope(:,1,i),self.leg_force_polytope(:,2,i),self.leg_force_polytope(:,3,i),'FaceColor','green')
+                P1 = Polyhedron(self.leg_force_polytope(:,:,i));
+                % plot3(self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,5,i), self.leg_force_wrench_polytope(:,3,i),".","Color","r","MarkerSize",10)
+                % [k1,av1] = convhull([self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,5,i), self.leg_force_wrench_polytope(:,3,i)]);
+                % trisurf(k1,self.leg_force_wrench_polytope(:,1,i), self.leg_force_wrench_polytope(:,5,i), self.leg_force_wrench_polytope(:,3,i),'FaceColor','green')
+                P1.plot('color', 'green', 'alpha', 0.5);
                 axis equal; grid on; 
                 % view(90,90);
-                % view(0,0);
-                xlabel("f_x");ylabel("f_y");zlabel("f_z");
+                view(45,30);
+                xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+                title('Leg ',num2str(i));
                
             end
+            title('WLAR Force Polytope');
         end
             function fig = plot_friction_polytopes(self)
             % %% friction polytope
+            self = geometry_computation.compute_contact_wrench_polytope(self);
             
             
-            figure;
-            title('WLAR friction Polytope');
+            fig = figure;
+            fig.title('WLAR friction Polytope');
             for i=1:4
                 subplot(2,2,i);
-                plot3(self.leg_contact_wrench_polytope(:,1,i), self.leg_contact_wrench_polytope(:,2,i), self.leg_contact_wrench_polytope(:,3,i),".","Color","r","MarkerSize",10)
-                [k2,av2] = convhull(self.leg_friction_polytope(:,:,i));
-                trisurf(k2,self.leg_friction_polytope(:,1,i),self.leg_friction_polytope(:,2,i),self.leg_friction_polytope(:,3,i),'FaceColor','r')
+                P2 = Polyhedron(self.leg_friction_polytope(:,:,i));
+                % plot3(self.leg_contact_wrench_polytope(:,1,i), self.leg_contact_wrench_polytope(:,2,i), self.leg_contact_wrench_polytope(:,3,i),".","Color","r","MarkerSize",10)
+                % [k2,av2] = convhull([self.leg_contact_wrench_polytope(:,1,i), self.leg_contact_wrench_polytope(:,2,i), self.leg_contact_wrench_polytope(:,3,i)]);
+                % trisurf(k2,self.leg_contact_wrench_polytope(:,1,i), self.leg_contact_wrench_polytope(:,2,i), self.leg_contact_wrench_polytope(:,3,i),'FaceColor','r')
+                P2.plot('color', 'red', 'alpha', 0.5);
                 axis equal; grid on; 
                 % view(90,90);
-                % view(0,0);
-                xlabel("f_x");ylabel("f_y");zlabel("f_z");
+                view(45,30);
+                xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+                title('Leg ',num2str(i);
                
             end
         end

@@ -159,7 +159,12 @@ classdef wlar_kinematics
                 self.R.s_ej(:,:,i) = self.R.s_b*self.R.b_ej(:,:,i);
 
                 self.T.s_ej(:,:,i) = self.T.s_b*self.T.b_ej(:,:,i);
-                self.p.s_ej(:,i) = self.T.s_ej(:,4,i);
+                self.p.s_ej(:,i) = self.T.s_ej(1:3,4,i);
+                   
+
+                self.v.s_ej_anc(:,i) = self.anchor.position(:,:,i)- self.p.s_ej(:,i);
+                self.v.b_ej_anc(:,i) = self.R.s_b.'*self.v.s_ej_anc(:,i);
+
             end
         end
     end
