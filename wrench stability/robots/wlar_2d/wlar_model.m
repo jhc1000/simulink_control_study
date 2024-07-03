@@ -27,8 +27,8 @@ classdef wlar_model
             self.RF_tau_lim = [120.0 150.0 120.0];  % HR, HP, K
             self.RH_tau_lim = [120.0 150.0 120.0];  % HR, HP, K
 
-            self.ASC_L_tension_lim = [10.0 100000.0];  % min, max 
-            self.ASC_R_tension_lim = [10.0 100000.0];  % min, max
+            self.ASC_L_tension_lim = [50.0 1000.0];  % min, max 
+            self.ASC_R_tension_lim = [50.0 1000.0];  % min, max
         end
     end
 end

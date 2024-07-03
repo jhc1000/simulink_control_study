@@ -126,6 +126,7 @@ classdef geometry_computation
             for i = 1:4
                 self.ascender_wrench_polytope(:,i) = self.asc_wrench_matrix*self.asc_tension_space(i,:).';
                 self.ascender_force_polytope(i,:) = [self.ascender_wrench_polytope(1,i) self.ascender_wrench_polytope(5,i) self.ascender_wrench_polytope(3,i)];
+                self.ascender_force_polytope1(i,:) = [self.ascender_wrench_polytope(1,i) self.ascender_wrench_polytope(2,i) self.ascender_wrench_polytope(3,i)];
             end
             self.asc_force_polytope_convhull = Polyhedron(self.ascender_force_polytope);
         end

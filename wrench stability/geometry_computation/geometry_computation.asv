@@ -116,7 +116,7 @@ classdef geometry_computation
             self.leg_friction_polytope_total_convhull = Polyhedron(self.leg_friction_polytope_total);
         end
         function self = compute_ascender_wrench_polytope(self)
-            self.asc_tenstion_space = [self.ASC_L_tension_lim(1) self.ASC_R_tension_lim(1);
+            self.asc_tension_space = [self.ASC_L_tension_lim(1) self.ASC_R_tension_lim(1);
                 self.ASC_L_tension_lim(2) self.ASC_R_tension_lim(1);
                 self.ASC_L_tension_lim(1) self.ASC_R_tension_lim(2);
                 self.ASC_L_tension_lim(2) self.ASC_R_tension_lim(2);];
@@ -124,9 +124,12 @@ classdef geometry_computation
             self.asc_wrench_matrix = [self.v.b_ej_anc(:,1) self.v.b_ej_anc(:,2);
                 cross(self.p.b_ej(:,1),self.v.b_ej_anc(:,1))/norm(self.p.b_ej(:,1)) cross(self.p.b_ej(:,2),self.v.b_ej_anc(:,2))/norm(self.p.b_ej(:,2))];
             for i = 1:4
-            self.ascender_wrench_polytope(:,i) = self.asc_wrench_matrix*self.tension_space(i,:).';
-            self.ascender_force_polytope(:,i) = []
+                self.ascender_wrench_polytope(:,i) = self.asc_wrench_matrix*self.asc_tension_space(i,:).';
+                self.ascender_force_polytope(i,:) = [self.ascender_wrench_polytope(1,i) self.ascender_wrench_polytope(5,i) self.ascender_wrench_polytope(3,i)];
+                self.ascender_force_polytope(i,:) = [self.ascender_wrench_polytope(1,i) self.ascender_wrench_polytope(5,i) self.ascender_wrench_polytope(3,i)];
+            
             end
+            self.asc_force_polytope_convhull = Polyhedron(self.ascender_force_polytope);
         end
     end
 end

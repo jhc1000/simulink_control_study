@@ -21,7 +21,8 @@ self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
 
 self.q_base = [0.0; deg2rad(0); 0.0];
-self.p_base = [-2.0; -1.972; 0.48];
+% self.p_base = [-2.0; -1.972; 0.4594];
+self.p_base = [-4.0; -2.5; 0.4594];
 
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
@@ -56,44 +57,47 @@ self = geometry_computation.compute_contact_wrench_polytope(self);
 self = geometry_computation.compute_ascender_wrench_polytope(self);
 
 self.force_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total, self.ascender_force_polytope);
+self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total);
 
 %% Total Feasible force Polytope
 % self.leg_feasible_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total,self.leg_friction_polytope_total);
 
 % Create polyhedra from vertices
-P1 = Polyhedron(self.force_polytope_total);
+P1 = Polyhedron(self.leg_force_polytope_total);
 P2 = Polyhedron(self.leg_friction_polytope_total);
+P3 = Polyhedron(self.force_polytope_total);
 
 % Compute the intersection of the two polyhedra
-P3 = intersect(P1, P2);
+self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
+self.feasible_wrench_polytope_total1_convhull = intersect(P3, P2);
 
 % Plot the first convex hull
-fig = figure;
-tiledlayout(1,3);
-ax(1) = nexttile;
-P1.plot('color', 'green', 'alpha', 0.5);
-title(ax(1),'Force Polytope')
-xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-axis equal
-view(45,30);
-
-% Plot the second convex hull
-ax(2) = nexttile;
-P2.plot('color', 'red', 'alpha', 0.5);
-title(ax(2),'Friction Polytope')
-xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-axis equal
-view(45,30);
-
-% Plot the intersection
-ax(3) = nexttile;
-P3.plot('color', 'blue', 'alpha', 0.5);
-title(ax(3),'Feasible Polytope')
-xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-axis equal
-view(45,30);
-
-sgtitle('Feasible Wrench Polytope');
+% fig = figure;
+% tiledlayout(1,3);
+% ax(1) = nexttile;
+% P3.plot('color', 'green', 'alpha', 0.5);
+% title(ax(1),'Force Polytope')
+% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+% axis equal
+% view(45,30);
+% 
+% % Plot the second convex hull
+% ax(2) = nexttile;
+% P2.plot('color', 'red', 'alpha', 0.5);
+% title(ax(2),'Friction Polytope')
+% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+% axis equal
+% view(45,30);
+% 
+% % Plot the intersection
+% ax(3) = nexttile;
+% self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
+% title(ax(3),'Feasible Polytope')
+% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+% axis equal
+% view(45,30);
+% 
+% sgtitle('Feasible Wrench Polytope');
 
 
 %% Plotting
@@ -102,11 +106,12 @@ plotting_tools.plot_robot_space(self);
 % plotting_tools.plot_force_polytopes(self);
 plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
-plotting_tools.plot_fesible_polytopes(self);
+% plotting_tools.plot_fesible_polytopes(self);
+plotting_tools.plot_fesible_polytopes1(self);
 
 %% Animation
 % plotting_tools.animation_fesible_polytopes(self);
-
+% plotting_tools.animation_fesible_polytopes1(self);
 
 
 
