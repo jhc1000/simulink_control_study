@@ -21,8 +21,8 @@ self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
 
 self.q_base = [0.0; deg2rad(0); 0.0];
-% self.p_base = [-2.0; -1.972; 0.4594];
-self.p_base = [-4.0; -2.5; 0.4594];
+self.p_base = [-2.0; -1.972; 0.4594];
+% self.p_base = [-4.0; -2.5; 0.4594];
 
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
@@ -71,34 +71,49 @@ P3 = Polyhedron(self.force_polytope_total);
 self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
 self.feasible_wrench_polytope_total1_convhull = intersect(P3, P2);
 
-% Plot the first convex hull
-% fig = figure;
-% tiledlayout(1,3);
-% ax(1) = nexttile;
-% P3.plot('color', 'green', 'alpha', 0.5);
-% title(ax(1),'Force Polytope')
-% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-% axis equal
-% view(45,30);
-% 
-% % Plot the second convex hull
-% ax(2) = nexttile;
-% P2.plot('color', 'red', 'alpha', 0.5);
-% title(ax(2),'Friction Polytope')
-% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-% axis equal
-% view(45,30);
-% 
-% % Plot the intersection
-% ax(3) = nexttile;
-% self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
-% title(ax(3),'Feasible Polytope')
-% xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-% axis equal
-% view(45,30);
-% 
-% sgtitle('Feasible Wrench Polytope');
+% 프로젝션 차원
+projection_dims_3d = [1, 2, 3];
+projection_dims_2d = [1, 2];  % 예시: Fx와 Fy 평면으로 투영
 
+% 초기 폴리토프 프로젝션
+ProjectedPolytope3D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_3d);
+ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_2d);
+
+% Plot the first convex hull
+fig = figure;
+subplot(1, 4, 1);
+P3.plot('color', 'green', 'alpha', 0.5);
+title('Force Polytope')
+xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+axis equal
+view(45,30);
+
+% Plot the second convex hull
+subplot(1, 4, 2);
+P2.plot('color', 'red', 'alpha', 0.5);
+title('Friction Polytope')
+xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+axis equal
+view(45,30);
+
+% Plot the intersection
+subplot(1, 4, 3);
+self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
+title('Feasible Polytope')
+xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
+axis equal
+view(45,30);
+
+% 2D 프로젝션 서브플롯
+subplot(1, 4, 4);
+ProjectedPolytope2D.plot('color', 'gray', 'alpha', 0.5);
+xlabel('F_x [N]');ylabel('\tau_y [Nm]');
+grid on;
+axis equal;
+% view(0,90);
+title('Projected 2D Wrench Polytope');
+
+sgtitle('Feasible Wrench Polytope');
 
 %% Plotting
 plotting_tools.plot_robot_space(self);
@@ -107,7 +122,7 @@ plotting_tools.plot_robot_space(self);
 plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);
-plotting_tools.plot_fesible_polytopes1(self);
+% plotting_tools.plot_fesible_polytopes1(self);
 
 %% Animation
 % plotting_tools.animation_fesible_polytopes(self);
