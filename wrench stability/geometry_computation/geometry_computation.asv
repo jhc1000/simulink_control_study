@@ -116,7 +116,7 @@ classdef geometry_computation
                     self.leg_contact_wrench_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_contact_wrench_polytope_total_3d,[self.leg_contact_wrench_polytope(:,1,i) self.leg_contact_wrench_polytope(:,5,i) self.leg_contact_wrench_polytope(:,3,i)]);
                 end
             end
-            self.leg_contact_wrench_polytope_total_convhull = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
+            self.leg_friction_wrench_polytope_total_convhull = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
         end
         function self = compute_ascender_wrench_polytope(self)
             self.asc_tension_space = [self.ASC_L_tension_lim(1) self.ASC_R_tension_lim(1);
@@ -128,10 +128,10 @@ classdef geometry_computation
                 cross(self.p.b_ej(:,1),self.v.b_ej_anc(:,1)) cross(self.p.b_ej(:,2),self.v.b_ej_anc(:,2))];
             for i = 1:4
                 self.ascender_wrench_polytope(i,:) = (self.asc_wrench_matrix*self.asc_tension_space(i,:).').';
-                self.ascender_force_polytope(i,:) = [self.ascender_wrench_polytope(i,1) self.ascender_wrench_polytope(i,2) self.ascender_wrench_polytope(i,3)];
-                self.ascender_moment_polytope(i,:) = [self.ascender_wrench_polytope(i,4) self.ascender_wrench_polytope(i,5) self.ascender_wrench_polytope(i,6)];
+                self.ascender_force_polytope(i,:) = [self.ascender_wrench_polytope(i,1) self.ascender_wrench_polytope(i,1) self.ascender_wrench_polytope(3,i)];
+                self.ascender_moment_polytope(i,:) = [self.ascender_wrench_polytope(4,i) self.ascender_wrench_polytope(5,i) self.ascender_wrench_polytope(6,i)];
             end
-            self.asc_wrench_polytope_3d = [self.ascender_wrench_polytope(:,1) self.ascender_wrench_polytope(:,5) self.ascender_wrench_polytope(:,3)];
+            self.asc_wrench_polytope_3d = [self.ascender_wrench_polytope(:,1) self.ascender_wrench_polytope(:,5) self.ascender_wrench_polytope()];
             self.asc_wrench_polytope_convhull = Polyhedron(self.asc_wrench_polytope_3d);
         end
     end

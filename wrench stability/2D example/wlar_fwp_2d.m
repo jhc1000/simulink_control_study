@@ -56,16 +56,15 @@ self = geometry_computation.compute_contact_wrench_polytope(self);
 %% Ascender Wrench Polytope
 self = geometry_computation.compute_ascender_wrench_polytope(self);
 
-self.force_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total, self.ascender_force_polytope);
-self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total);
+self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total_3d, self.asc_wrench_polytope_3d);
+self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
 
 %% Total Feasible force Polytope
-% self.leg_feasible_polytope_total = geometry_computation.minkowskiSum(self.leg_force_polytope_total,self.leg_friction_polytope_total);
 
 % Create polyhedra from vertices
-P1 = Polyhedron(self.leg_force_polytope_total);
-P2 = Polyhedron(self.leg_friction_polytope_total);
-P3 = Polyhedron(self.force_polytope_total);
+P1 = Polyhedron(self.leg_actuation_wrench_polytope_total_3d);
+P2 = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
+P3 = Polyhedron(self.force_polytope_total_3d);
 
 % Compute the intersection of the two polyhedra
 self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
@@ -83,34 +82,41 @@ ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(p
 fig = figure;
 subplot(1, 4, 1);
 P3.plot('color', 'green', 'alpha', 0.5);
-title('Force Polytope')
-xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-axis equal
-view(45,30);
+title('Force Polytope');
+xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% axis equal;
+view(-45, 30);
 
 % Plot the second convex hull
 subplot(1, 4, 2);
 P2.plot('color', 'red', 'alpha', 0.5);
-title('Friction Polytope')
-xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-axis equal
-view(45,30);
+title('Friction Polytope');
+xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% axis equal;
+view(-45, 30);
 
 % Plot the intersection
 subplot(1, 4, 3);
 self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
-title('Feasible Polytope')
-xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-axis equal
-view(45,30);
+title('Feasible Polytope');
+xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% axis equal;
+view(-45, 30);
 
 % 2D 프로젝션 서브플롯
 subplot(1, 4, 4);
 ProjectedPolytope2D.plot('color', 'gray', 'alpha', 0.5);
-xlabel('F_x [N]');ylabel('\tau_y [Nm]');
+xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
 grid on;
-axis equal;
-% view(0,90);
+% axis equal;
+view(-90,90);
 title('Projected 2D Wrench Polytope');
 
 sgtitle('Feasible Wrench Polytope');
@@ -119,7 +125,7 @@ sgtitle('Feasible Wrench Polytope');
 plotting_tools.plot_robot_space(self);
 % plotting_tools.plot_robot_base(self);
 % plotting_tools.plot_force_polytopes(self);
-plotting_tools.plot_ascender_force_polytopes(self);
+% plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);
 % plotting_tools.plot_fesible_polytopes1(self);

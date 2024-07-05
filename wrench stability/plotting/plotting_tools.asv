@@ -73,7 +73,7 @@ classdef plotting_tools
             end
 
             for i=1:4
-                P1 = Polyhedron(self.p.s_w(:,i).'+0.001.*self.leg_actuation_force_polytope(:,:,i));
+                P1 = Polyhedron(self.p.s_w(:,i).'+0.00025.*self.leg_actuation_force_polytope(:,:,i));
                 P1.plot('color', 'green', 'alpha', 0.5);
             end
 
@@ -100,7 +100,7 @@ classdef plotting_tools
                 % axis equal;
                 grid on;
                 % view(90,90);
-                view(-45,30);
+                view(45,30);
                 xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
                 title(ax(i),'Leg ',num2str(i));
 
@@ -118,10 +118,10 @@ classdef plotting_tools
                 ax(i) = nexttile;
                 P2 = Polyhedron([self.leg_contact_wrench_polytope(:,1,i) self.leg_contact_wrench_polytope(:,5,i) self.leg_contact_wrench_polytope(:,3,i)]);
                 P2.plot('color', 'red', 'alpha', 0.5);
-                % axis equal;
+                axis equal;
                 grid on;
                 % view(90,90);
-                view(-45,30);
+                view(45,30);
                 xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
                 title(ax(i),'Leg ',num2str(i));
 
@@ -136,24 +136,24 @@ classdef plotting_tools
             self.leg_actuation_wrench_polytope_total_convhull.plot('color', 'green', 'alpha', 0.5);
             title(ax(1),'Force Polytope')
             xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-            % axis equal
-            view(-45,30);
+            axis equal
+            view(45,30);
 
             % Plot the second convex hull
             ax(2) = nexttile;
-            self.leg_contact_wrench_polytope_total_convhull.plot('color', 'red', 'alpha', 0.5);
+            self.leg_friction_wrench_polytope_total_convhull.plot('color', 'red', 'alpha', 0.5);
             title(ax(2),'Friction Polytope')
             xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-            % axis equal
-            view(-45,30);
+            axis equal
+            view(45,30);
 
             % Plot the intersection
             ax(3) = nexttile;
             self.feasible_wrench_polytope_total_convhull.plot('color', 'blue', 'alpha', 0.5);
             title(ax(3),'Feasible Polytope')
             xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-            % axis equal
-            view(-45,30);
+            axis equal
+            view(45,30);
 
             sgtitle('Feasible Wrench Polytope');
         end
@@ -165,27 +165,27 @@ classdef plotting_tools
             self.force_polytope_total_convhull.plot('color', 'green', 'alpha', 0.5);
             title(ax(1),'Force Polytope')
             xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-            % axis equal
-            % xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
-            view(-45,30);
+            axis equal
+            xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
+            view(45,30);
 
             % Plot the second convex hull
             ax(2) = nexttile;
             self.leg_contact_wrench_polytope_total_convhull.plot('color', 'red', 'alpha', 0.5);
             title(ax(2),'Friction Polytope')
             xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-            % axis equal
-            % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-45,30);
+            axis equal
+            xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+            view(45,30);
 
             % Plot the intersection
             ax(3) = nexttile;
             self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
             title(ax(3),'Feasible Polytope')
             xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
-            % axis equal;
-            % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-45,30);
+            axis equal;
+            xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+            view(45,30);
 
             sgtitle('Feasible Wrench Polytope');
         end
@@ -194,14 +194,14 @@ classdef plotting_tools
 
             fig = figure;
 
-            P = Polyhedron(self.ascender_force_polytope);
+            P = Polyhedron(self.asc_wrench_polytope_3d);
 
             % self.asc_force_polytope_convhull.plot('color', 'cyan', 'alpha', 0.5);
             P.plot('color', 'cyan', 'alpha', 0.5);
-            axis equal;
+            % axis equal;
             grid on;
             % view(90,90);
-            view(-45,30);
+            view(45,30);
             % xlabel("F_x [N]");ylabel("\tau_y [Nm]");zlabel("F_z [N]");
             xlabel("F_x [N]");ylabel("F_y [N]");zlabel("F_z [N]");
 
@@ -219,7 +219,7 @@ classdef plotting_tools
             xlabel("F_x [N]"); ylabel("\tau_y [Nm]"); zlabel("F_z [N]");
             axis equal;
             xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
-            view(-45, 30);
+            view(45, 30);
 
             % 두 번째 서브플롯 설정
             subplot(1, 3, 2);
@@ -228,7 +228,7 @@ classdef plotting_tools
             xlabel("F_x [N]"); ylabel("\tau_y [Nm]"); zlabel("F_z [N]");
             axis equal;
             xlim([-10000 10000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-45, 30);
+            view(45, 30);
 
             % 세 번째 서브플롯 설정
             subplot(1, 3, 3);
@@ -237,7 +237,7 @@ classdef plotting_tools
             xlabel("F_x [N]"); ylabel("\tau_y [Nm]"); zlabel("F_z [N]");
             axis equal;
             xlim([-10000 10000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-45, 30);
+            view(45, 30);
 
             sgtitle('Feasible Wrench Polytope');
 
@@ -271,7 +271,7 @@ classdef plotting_tools
                 xlabel("F_x [N]"); ylabel("\tau_y [Nm]"); zlabel("F_z [N]");
                 axis equal;
                 xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
-                view(-45, 30);
+                view(45, 30);
 
                 % 두 번째 서브플롯 업데이트
                 subplot(1, 3, 2);
@@ -281,7 +281,7 @@ classdef plotting_tools
                 xlabel("F_x [N]"); ylabel("\tau_y [Nm]"); zlabel("F_z [N]");
                 axis equal;
                 xlim([-5000 5000]); ylim([-5000 5000]); zlim([-0 10000]);
-                view(-45, 30);
+                view(45, 30);
 
                 % 세 번째 서브플롯은 변화가 없는 self.feasible_wrench_polytope_total_convhull을 그리도록 설정
                 subplot(1, 3, 3);
@@ -291,7 +291,7 @@ classdef plotting_tools
                 xlabel("F_x [N]"); ylabel("\tau_y [Nm]"); zlabel("F_z [N]");
                 axis equal;
                 xlim([-5000 5000]); ylim([-5000 5000]); zlim([-0 10000]);
-                view(-45, 30);
+                view(45, 30);
 
                 sgtitle('Feasible Wrench Polytope');
 
