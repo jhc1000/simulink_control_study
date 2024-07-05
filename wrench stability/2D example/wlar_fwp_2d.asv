@@ -122,12 +122,10 @@ ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(p
 % sgtitle('Feasible Wrench Polytope');
 
 %% 2D Region
+
 % Define the support region of the 4-leg contact area
 % Assuming support region is defined by vertices (x1, y1), (x2, y2), (x3, y3), (x4, y4)
-support_region_vertices = [self.p.b_w(1,1), self.p.b_w(2,1);
-    self.p.b_w(1,2), self.p.b_w(2,2);
-    self.p.b_w(1,3), self.p.b_w(2,3);
-    self.p.b_w(1,4), self.p.b_w(2,4)];
+support_region_vertices = [x1, y1; x2, y2; x3, y3; x4, y4];
 
 % Project the 3D feasible polytope to the 2D support region plane
 ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection([1, 2]);
@@ -151,12 +149,10 @@ for i = 1:num_vertices
     point = ProjectedPolytope2D.V(i, :);
     
     % Linear programming to check if the point lies within the support region
-    A = -support_region_vertices;
+    A = [-support_region_vertices(:,1), -support_region_vertices(:,2)];
     b = -ones(size(support_region_vertices, 1), 1);
-    f = zeros(size(point));
     options = optimoptions('linprog', 'Display', 'none');
-    
-    [~, fval, exitflag] = linprog(f, A, b, [], [], point, point, options);
+    [~, fval, exitflag] = linprog([], [], [], A, b, point, options);
     
     if exitflag == 1  % The point is feasible
         feasible_points = [feasible_points; point];
