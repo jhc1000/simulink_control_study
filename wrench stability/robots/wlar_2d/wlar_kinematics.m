@@ -1,11 +1,11 @@
 classdef wlar_kinematics
     properties
-        x_b2hr = 0.2515;  % b2hr
+        x_b2hr = 0.25825;  % b2hr
         z_b2hr = 0.0605;    % b2hr
         z_hr2hp = 0.094; % hr2hp
         z_hp2k = 0.30116;   % hp2k
         z_k2w = 0.31884;    % k2w
-        y_b2hr = 0.288;   % b2hr
+        y_b2hr = 0.283;   % b2hr
         y_hr2hp = 0.09885;  % hr2hp
         y_hp2k = 0.001;   % hp2k
         y_k2w = 0.039;    % k2w

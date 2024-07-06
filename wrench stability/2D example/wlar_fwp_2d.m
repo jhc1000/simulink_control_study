@@ -21,7 +21,8 @@ self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
 
 self.q_base = [0.0; deg2rad(0); 0.0];
-self.p_base = [-2.0; -1.972; 0.4594];
+% self.p_base = [-2.0; -1.972; 0.4594];
+self.p_base = [-2.0; -1.972; 0.4879];
 % self.p_base = [-4.0; -2.5; 0.4594];
 
 self.dot_q_base = [0.0; 0.0; 0.0];
@@ -31,11 +32,13 @@ self.dot_p_base = [0.0; 0.0; 0.0];
 % self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
-self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
-% self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
-self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
+% self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
+self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+% self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
+self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
 % self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
-self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
+% self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
+self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
 self.q.asc = zeros(2,1);
 
 %% Kinematics and Jacobians
@@ -123,70 +126,108 @@ ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(p
 
 %% 2D Region
 % Define the support region of the 4-leg contact area
-% Assuming support region is defined by vertices (x1, y1), (x2, y2), (x3, y3), (x4, y4)
-support_region_vertices = [self.p.b_w(1,1), self.p.b_w(2,1);
-    self.p.b_w(1,2), self.p.b_w(2,2);
-    self.p.b_w(1,3), self.p.b_w(2,3);
-    self.p.b_w(1,4), self.p.b_w(2,4)];
 
-% Project the 3D feasible polytope to the 2D support region plane
-ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection([1, 2]);
+% % Define parameters for the problem
+% cxy = [0; 0];           % Initial guess for cxy
+% cz = 0;                 % Placeholder for cz (not used in current functions)
+% alpha = 0;              % Angle alpha (adjust as needed)
+% R_sb = eye(3);          % Rotation matrix (identity for simplicity)
+% p = self.p.s_w;
+% 
+% n = 3;                  % Placeholder for n (not used in current functions)
+% mu = 0.5;               % Friction coefficient
+% tau_min = -1;           % Minimum torque constraint
+% tau_max = 1;            % Maximum torque constraint
+% ej = [1 0;              % Directions ej defining the constraints
+%       0 1];
+% v = [1 1;               % Velocities v defining the constraints
+%      -1 1];
+% t_min = -1;             % Minimum force constraint
+% t_max = 1;              % Maximum force constraint
+% epsilon = 0.01;         % Stopping criterion epsilon
+% 
+% % Initialize the feasible region
+% try
+%     Yfa = geometry_computation.feasibleRegionIP(self, cxy, cz, alpha, R_sb, p, n, mu, tau_min, tau_max, ej, v, t_min, t_max, epsilon);
+% catch ME
+%     disp(ME.message);
+%     error('Failed to initialize the feasible region. Check input points.');
+% end
+% 
+% % Plot the initial feasible region
+% figure;
+% hold on;
+% plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'b-', 'LineWidth', 2);
+% plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'bo', 'MarkerFaceColor', 'b');
+% 
+% % Label the vertices
+% for i = 1:size(Yfa, 2)
+%     text(Yfa(1, i), Yfa(2, i), Yfa(3, i), sprintf('P%d', i), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
+% end
+% 
+% xlabel('X');
+% ylabel('Y');
+% zlabel('Z');
+% title('Initial Feasible Region');
+% axis equal;
+% grid on;
+% 
+% % Iterate to update the feasible region and plot each step
+% while true
+%     % I) Compute the edges of Yinner
+%     edges = geometry_computation.computeEdges(Yfa);
+% 
+%     % II) Pick ai based on the edge cutting off the largest fraction of Youter
+%     ai = geometry_computation.pickEdge(edges, Yfa);
+% 
+%     % III) Solve the LP
+%     try
+%         [cxy_opt, f_opt] = geometry_computation.solveLP(ai, cxy, alpha, R_sb, p, n, mu, tau_min, tau_max, ej, v, t_min, t_max);
+%     catch ME
+%         disp(ME.message);
+%         break; % Break if no feasible solution found
+%     end
+% 
+%     % IV) Update the outer approximation Youter
+%     Yfa = geometry_computation.updateOuterApproximation(Yfa, cxy_opt);
+% 
+%     % V) Update the inner approximation Yinner
+%     Yfa = geometry_computation.updateInnerApproximation(Yfa, cxy_opt, f_opt);
+% 
+%     % Plot the updated feasible region
+%     figure;
+%     hold on;
+%     plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'b-', 'LineWidth', 2);
+%     plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'bo', 'MarkerFaceColor', 'b');
+% 
+%     % Label the vertices
+%     for i = 1:size(Yfa, 2)
+%         text(Yfa(1, i), Yfa(2, i), Yfa(3, i), sprintf('P%d', i), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
+%     end
+% 
+%     xlabel('X');
+%     ylabel('Y');
+%     zlabel('Z');
+%     title('Updated Feasible Region');
+%     axis equal;
+%     grid on;
+% 
+%     % Check stopping criterion
+%     if area(Yfa) <= epsilon
+%         break;
+%     end
+% end
 
-% Plot the initial projections
-figure;
-subplot(1, 2, 1);
-ProjectedPolytope2D.plot('color', 'gray', 'alpha', 0.5);
-hold on;
-fill(support_region_vertices(:,1), support_region_vertices(:,2), 'r', 'FaceAlpha', 0.1);
-xlabel('\it{x [m]}', 'Interpreter', 'latex');
-ylabel('\it{y [m]}', 'Interpreter', 'latex');
-title('Initial Projected 2D Wrench Polytope and Support Region');
-axis equal;
-hold off;
 
-% Iteratively refine the feasible region using linear programming
-num_vertices = size(ProjectedPolytope2D.V, 1);
-feasible_points = [];
-for i = 1:num_vertices
-    point = ProjectedPolytope2D.V(i, :);
-    
-    % Linear programming to check if the point lies within the support region
-    A = -support_region_vertices;
-    b = -ones(size(support_region_vertices, 1), 1);
-    f = zeros(size(point));
-    options = optimoptions('linprog', 'Display', 'none');
-    
-    [~, fval, exitflag] = linprog(f, A, b, [], [], point, point, options);
-    
-    if exitflag == 1  % The point is feasible
-        feasible_points = [feasible_points; point];
-    end
-end
-
-% Plot the refined feasible region
-subplot(1, 2, 2);
-if ~isempty(feasible_points)
-    K = convhull(feasible_points);
-    plot(feasible_points(K,1), feasible_points(K,2), 'b-', 'LineWidth', 2);
-    hold on;
-    fill(support_region_vertices(:,1), support_region_vertices(:,2), 'r', 'FaceAlpha', 0.1);
-    xlabel('\it{x [m]}', 'Interpreter', 'latex');
-    ylabel('\it{y [m]}', 'Interpreter', 'latex');
-    title('Refined Feasible Region in Support Region');
-    axis equal;
-    hold off;
-else
-    text(0.5, 0.5, 'No feasible region found within support region', 'HorizontalAlignment', 'center');
-end
 
 %% Plotting
 plotting_tools.plot_robot_space(self);
-% plotting_tools.plot_robot_base(self);
+plotting_tools.plot_robot_base(self);
 % plotting_tools.plot_force_polytopes(self);
 % plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);
-plotting_tools.plot_fesible_polytopes1(self);
+% plotting_tools.plot_fesible_polytopes1(self);
 
 %% Animation
 % plotting_tools.animation_fesible_polytopes(self);
