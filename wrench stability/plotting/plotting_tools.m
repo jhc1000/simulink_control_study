@@ -17,21 +17,34 @@ classdef plotting_tools
                 point2.x{i} = self.p.b_hp(1,i); point2.y{i} = self.p.b_hp(2,i); point2.z{i} = self.p.b_hp(3,i);
                 point3.x{i} = self.p.b_k(1,i); point3.y{i} = self.p.b_k(2,i); point3.z{i} = self.p.b_k(3,i);
                 point4.x{i} = self.p.b_w(1,i); point4.y{i} = self.p.b_w(2,i); point4.z{i} = self.p.b_w(3,i);
-                L1{i} = line([point4.x{i}, point4.x{i}],[point4.y{i},point4.y{i}],[point4.z{i},point4.z{i}],'Color','r','LineWidth',2);
-                L2{i} = line([point4.x{i}, point4.x{i}],[point4.y{i},point4.y{i}],[point4.z{i},point4.z{i}],'Color','b','LineWidth',2);
-                L3{i} = line([point4.x{i}, point4.x{i}],[point4.y{i},point4.y{i}],[point4.z{i},point4.z{i}],'Color','g','LineWidth',2);
+                L1{i} = line([point4.x{i}, point4.x{i}],[point4.y{i},point4.y{i}],[point4.z{i},point4.z{i}],'Color','r','LineWidth',8);
+                L2{i} = line([point4.x{i}, point4.x{i}],[point4.y{i},point4.y{i}],[point4.z{i},point4.z{i}],'Color','b','LineWidth',8);
+                L3{i} = line([point4.x{i}, point4.x{i}],[point4.y{i},point4.y{i}],[point4.z{i},point4.z{i}],'Color','g','LineWidth',8);
                 set(L1{i},'ZData',[point1.z{i},point2.z{i}],'YData',[point1.y{i},point2.y{i}],'XData',[point1.x{i},point2.x{i}]);
                 set(L2{i},'ZData',[point2.z{i},point3.z{i}],'YData',[point2.y{i},point3.y{i}],'XData',[point2.x{i},point3.x{i}]);
                 set(L3{i},'ZData',[point3.z{i},point4.z{i}],'YData',[point3.y{i},point4.y{i}],'XData',[point3.x{i},point4.x{i}]);
             end
-            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','cyan','LineWidth',3);
-            Lb{2} = line([point1.x{2}, point1.x{4}],[point1.y{2},point1.y{4}],[point1.z{2},point1.z{4}],'Color','b','LineWidth',3);
-            Lb{3} = line([point1.x{3}, point1.x{4}],[point1.y{3},point1.y{4}],[point1.z{3},point1.z{4}],'Color','b','LineWidth',3);
-            Lb{4} = line([point1.x{3}, point1.x{1}],[point1.y{3},point1.y{1}],[point1.z{3},point1.z{1}],'Color','b','LineWidth',3);
-            Lw{1} = line([point4.x{1}, point4.x{2}],[point4.y{1},point4.y{2}],[point4.z{1},point4.z{2}],'Color','k','LineWidth',1);
-            Lw{2} = line([point4.x{2}, point4.x{4}],[point4.y{2},point4.y{4}],[point4.z{2},point4.z{4}],'Color','k','LineWidth',1);
-            Lw{3} = line([point4.x{3}, point4.x{4}],[point4.y{3},point4.y{4}],[point4.z{3},point4.z{4}],'Color','k','LineWidth',1);
-            Lw{4} = line([point4.x{3}, point4.x{1}],[point4.y{3},point4.y{1}],[point4.z{3},point4.z{1}],'Color','k','LineWidth',1);
+            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','cyan','LineWidth',8);
+            Lb{2} = line([point1.x{2}, point1.x{4}],[point1.y{2},point1.y{4}],[point1.z{2},point1.z{4}],'Color','k','LineWidth',8);
+            Lb{3} = line([point1.x{3}, point1.x{4}],[point1.y{3},point1.y{4}],[point1.z{3},point1.z{4}],'Color','k','LineWidth',8);
+            Lb{4} = line([point1.x{3}, point1.x{1}],[point1.y{3},point1.y{1}],[point1.z{3},point1.z{1}],'Color','k','LineWidth',8);
+            Lw{1} = line([point4.x{1}, point4.x{2}],[point4.y{1},point4.y{2}],[point4.z{1},point4.z{2}],'Color','k','LineWidth',3);
+            Lw{2} = line([point4.x{2}, point4.x{4}],[point4.y{2},point4.y{4}],[point4.z{2},point4.z{4}],'Color','k','LineWidth',3);
+            Lw{3} = line([point4.x{3}, point4.x{4}],[point4.y{3},point4.y{4}],[point4.z{3},point4.z{4}],'Color','k','LineWidth',3);
+            Lw{4} = line([point4.x{3}, point4.x{1}],[point4.y{3},point4.y{1}],[point4.z{3},point4.z{1}],'Color','k','LineWidth',3);
+
+            % for i=1:4
+            %     P1 = Polyhedron(self.p.b_w(:,i).'+[0.0025.*self.leg_actuation_force_polytope(:,1,i) 0.0025.*self.leg_actuation_force_polytope(:,2,i) 0.00025.*self.leg_actuation_force_polytope(:,3,i)]);
+            %     P1.plot('color', 'green', 'alpha', 0.5);
+            % end
+
+            for i=1:2
+                L_rope{i} = line([self.p.b_ej(1,i), self.v.b_ej_anc(1,i)],[self.p.b_ej(2,i),sign(3/2-i)*self.v.b_ej_anc(1,i)],[self.p.b_ej(3,i),self.v.b_ej_anc(3,i)],'Color','cyan','LineWidth',8);
+            end
+
+            P3 = Polyhedron(((self.p.b_ej(:,1)+self.p.b_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
+            P3.plot('color', 'cyan', 'alpha', 0.5);
+            hold off
 
             xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');
             ylabel('$\it{y} \rm{[m]}$', 'Interpreter', 'latex');
@@ -174,40 +187,50 @@ classdef plotting_tools
         function fig = plot_fesible_polytopes1(self)
             % Plot the first convex hull
             fig = figure;
-            tiledlayout(1,3);
-            ax(1) = nexttile;
+            subplot(1,3,1);
             self.force_polytope_total_convhull.plot('color', 'green', 'alpha', 0.5);
-            title(ax(1),'Force Polytope')
+            title('Actuation&Tension Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
             ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             % axis equal
             % xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
-            view(-45,30);
+            view(-60,10);
 
             % Plot the second convex hull
-            ax(2) = nexttile;
+            subplot(1,3,2);
             self.leg_contact_wrench_polytope_total_convhull.plot('color', 'red', 'alpha', 0.5);
-            title(ax(2),'Friction Polytope')
+            title('Contact Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
             ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             % axis equal
             % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-45,30);
+            view(-60,10);
+
+            % % Plot the second convex hull
+            % subplot(1,4,3);
+            % Polyhedron(self.ascender_force_polytope).plot('color', 'cyan', 'alpha', 0.5);
+            % title('Tenstion Wrench Polytope')
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{F_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+            % % axis equal
+            % % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+            % % view(-45,30);
 
             % Plot the intersection
-            ax(3) = nexttile;
+            subplot(1,3,3);
             self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
-            title(ax(3),'Feasible Polytope')
+            title('Stable Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
             ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             % axis equal;
             % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-45,30);
+            view(-60,10);
 
-            sgtitle('Feasible Wrench Polytope');
+            % sgtitle('Feasible Wrench Polytope');
         end
         function self = plot_ascender_force_polytopes(self)
             self = geometry_computation.compute_ascender_wrench_polytope(self);
