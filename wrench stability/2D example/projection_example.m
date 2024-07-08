@@ -1,80 +1,169 @@
-% 필요한 패키지를 추가합니다.
-% addpath(genpath('path_to_mpt3'));  % MPT3 툴박스의 경로를 추가합니다.
+% Clear workspace and close figures
+close all;
+clear;
+clc;
 
-% 6D 렌치 폴리토프 생성
-H = [randn(10, 6); -randn(10, 6)];  % 랜덤한 H-표현 행렬
-b = rand(20, 1);  % 랜덤한 b-벡터
+% 전체 경로 추가
+context();
 
-% 폴리토프 생성
-WrenchPolytope = Polyhedron('A', H, 'b', b);
+self.robot_name = "wlar_2d";
 
-% 프로젝션 차원
-projection_dims_3d = [1, 2, 3];
-projection_dims_2d = [2, 3];  % 예시: Fy와 Fz 평면으로 투영
+self.model = wlar_model;
+self.kinematics = wlar_kinematics;
+self.dynamics = dynamics;
 
-% 초기 폴리토프 프로젝션
-ProjectedPolytope3D = WrenchPolytope.projection(projection_dims_3d);
-ProjectedPolytope2D = WrenchPolytope.projection(projection_dims_2d);
+self = self.model.init(self);
+self = self.kinematics.init(self);
+self = self.dynamics.init(self);
 
-% 시각화 설정
-fig = figure;
+self.slope = [0.0, deg2rad(45), 0.0];
 
-% 3D 프로젝션 서브플롯
-subplot(1, 2, 1);
+self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
+self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
+
+self.q_base = [0.0; deg2rad(0); 0.0];
+% self.p_base = [-2.0; -1.972; 0.4594];
+self.p_base = [-2.0; -1.972; 0.4879];
+% self.p_base = [-4.0; -2.5; 0.4594];
+
+self.dot_q_base = [0.0; 0.0; 0.0];
+self.dot_p_base = [0.0; 0.0; 0.0];
+
+% self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
+% self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
+% self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
+% self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
+% self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
+self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+% self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
+self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
+% self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
+% self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
+self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
+self.q.asc = zeros(2,1);
+
+%% Kinematics and Jacobians
+
+self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
+self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_base);
+
+self = self.kinematics.Jacobians(self, self.dot_q_base, self.dot_p_base);
+
+%% Force Wrench Polytope
+self = geometry_computation.compute_force_wrench_polytope(self);
+
+%% GRF Estimation
+
+%% Contact Wrench Cone
+self = geometry_computation.compute_contact_wrench_polytope(self);
+
+%% Ascender Wrench Polytope
+self = geometry_computation.compute_ascender_wrench_polytope(self);
+
+self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total_3d, self.asc_wrench_polytope_3d);
+self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
+
+%% Total Feasible force Polytope
+
+% Create polyhedra from vertices
+P1 = Polyhedron(self.leg_actuation_wrench_polytope_total_3d);
+P2 = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
+P3 = Polyhedron(self.force_polytope_total_3d);
+
+% Compute the intersection of the two polyhedra
+self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
+self.feasible_wrench_polytope_total1_convhull = intersect(P3, P2);
+
+% Define the points
+points = [self.p.b_w(1,:).' self.p.b_w(2,:).'];  % Example points, adjust as needed
+
+% Plot the points
+figure;
 hold on;
-grid on;
-axis equal;
-view(3);
-xlabel('F_x [N]');
-ylabel('F_y [N]');
-zlabel('F_z [N]');
-title('Projected 3D Wrench Polytope');
-ProjectedPolytope3D.plot('color', 'blue', 'alpha', 0.5);
+plot(points(:,1), points(:,2), 'ko', 'MarkerSize', 10, 'LineWidth', 2);
+text(points(:,1), points(:,2), {' P1',' P2',' P3',' P4'},'VerticalAlignment','bottom','HorizontalAlignment','right')
+xlabel('X');
+ylabel('Y');
+title('Points to be Constrained');
 
-% 2D 프로젝션 서브플롯
-subplot(1, 2, 2);
-hold on;
-grid on;
+% Compute the convex hull of the points
+K = convhull(points(:,1), points(:,2));
+plot(points(K,1), points(K,2), 'r-', 'LineWidth', 2);
+legend('Points', 'Convex Hull', 'Location', 'Best');
 axis equal;
-xlabel('F_y [N]');
-ylabel('F_z [N]');
-title('Projected 2D Wrench Polytope');
-ProjectedPolytope2D.plot('color', 'green', 'alpha', 0.5);
 
-% 반복적으로 제약 조건을 적용
-for iter = 1:10
-    % 새로운 제약 조건 추가 (여기서는 랜덤 제약 조건 예시)
-    new_constraint_H = randn(1, 6);
-    new_constraint_b = rand;
+% Define constraints and solve using iterative projection and LP
+% Example of iterative projection (replace with actual StableRegionComputation class methods)
+epsilon = 1e-3;  % Stopping criterion for iterative projection
+
+% Example LP constraints (replace with actual constraints)
+ai = [0.0001; 0.0; 0.0];                % Example vector ai
+cxy = [0; 0; 0];             % Example initial guess for cxy
+alpha = self.slope(2);                 % Example angle alpha
+R_sb = eye(3);              % Example rotation matrix R_sb
+p = self.p.b_w;             % Example matrix p (3x4 matrix of random numbers)
+n = 4;                      % Example number n
+mu = 0.3;                   % Example value for mu
+tau_min = -100;             % Example minimum value for tau
+tau_max = 100;              % Example maximum value for tau
+ej = self.p.b_ej;            % Example matrix ej (3x2 matrix of random numbers)
+v = self.v.b_ej_anc;             % Example matrix v (3x2 matrix of random numbers)
+t_min = 50;                % Example minimum value for t
+t_max = 10000;              % Example maximum value for t
+
+% Initialize StableRegionComputation instance
+computation = StableRegionComputation(epsilon);
+
+% try
+    % Example of iterative projection to find feasible region
+    projected_points = iterativeProjection(points, computation);
+
+    % Example of LP to further refine the feasible region
+    [cxy_opt, f_opt] = computation.solveLP(self, ai, cxy, alpha, R_sb, p, n, mu, tau_min, tau_max, ej, v, t_min, t_max);
     
-    % 기존 폴리토프에 새로운 제약 조건 적용
-    WrenchPolytope = Polyhedron('A', [WrenchPolytope.A; new_constraint_H], 'b', [WrenchPolytope.b; new_constraint_b]);
+    % Plot the results
+    plot(projected_points(:,1), projected_points(:,2), 'b.', 'MarkerSize', 15);
+    text(projected_points(:,1), projected_points(:,2), {' P1',' P2',' P3',' P4'},'VerticalAlignment','bottom','HorizontalAlignment','right')
+    legend('Points', 'Convex Hull', 'Projected Points', 'Location', 'Best');
     
-    % 3D로 프로젝션 갱신
-    ProjectedPolytope3D = WrenchPolytope.projection(projection_dims_3d);
-    
-    % 2D로 프로젝션 갱신
-    ProjectedPolytope2D = WrenchPolytope.projection(projection_dims_2d);
-    
-    % 기존 플롯을 지우고 새로운 폴리토프를 플로팅
+    % Example plot of optimal cxy and f (replace with actual plot based on your data)
+    figure;
+    % Plotting the optimal cxy
     subplot(1, 2, 1);
-    cla;
-    ProjectedPolytope3D.plot('color', 'blue', 'alpha', 0.5);
-    title('Projected 3D Wrench Polytope');
-    xlabel('F_x [N]');
-    ylabel('F_y [N]');
-    zlabel('F_z [N]');
-    axis equal;
-    view(3);
-    
-    subplot(1, 2, 2);
-    cla;
-    ProjectedPolytope2D.plot('color', 'green', 'alpha', 0.5);
-    title('Projected 2D Wrench Polytope');
-    xlabel('F_y [N]');
-    ylabel('F_z [N]');
+    plot(cxy_opt(1), cxy_opt(2), 'ro', 'MarkerSize', 10);
+    xlabel('cxy(1)');
+    ylabel('cxy(2)');
+    title('Optimal cxy');
     axis equal;
 
-    % 애니메이션 효과를 위한 일시 정지
-    pause(0.5);
+    % Plotting the optimal f
+    subplot(1, 2, 2);
+    bar(f_opt);
+    xlabel('Index');
+    ylabel('Value');
+    title('Optimal f');
+    
+% catch ME
+%     disp(ME.message);
+% end
+
+function projected_points = iterativeProjection(points, computation)
+    % Example iterative projection method (replace with actual implementation)
+    max_iter = 100;
+    tol = 1e-6;
+    current_points = points;
+    for iter = 1:max_iter
+        new_points = [];  % Store projected points
+        for i = 1:size(current_points, 1)
+            % Example projection (replace with actual projection)
+            projected_point = current_points(i, :);  % Example: no change
+            new_points = [new_points; projected_point];
+        end
+        current_points = new_points;
+        % Example stopping criterion (replace with actual criterion)
+        if max(abs(current_points - points)) < tol
+            break;
+        end
+    end
+    projected_points = current_points;
 end
