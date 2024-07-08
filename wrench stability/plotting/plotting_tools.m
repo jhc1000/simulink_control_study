@@ -199,7 +199,7 @@ classdef plotting_tools
             % Plot the intersection
             ax(3) = nexttile;
             self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
-            title(ax(3),'Feasible Polytope')
+            title(ax(3),'Stable Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
             ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
@@ -207,7 +207,7 @@ classdef plotting_tools
             % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
             view(-45,30);
 
-            sgtitle('Feasible Wrench Polytope');
+            % sgtitle('Stable Wrench Polytope');
         end
         function self = plot_ascender_force_polytopes(self)
             self = geometry_computation.compute_ascender_wrench_polytope(self);
@@ -477,7 +477,7 @@ classdef plotting_tools
 
             fig = figure;
             % 첫 번째 서브플롯 설정
-            subplot(1,4,1);
+            % subplot(1,4,1);
             h = plot3(0,0,0);pt = get(h,'Parent');xlim(pt,'manual');
             xlim(pt,[-1 1]);ylim(pt,'manual');ylim(pt,[-1 1]);zlim(pt,'manual');
             zlim(pt,[-1 1]);axis equal;
@@ -532,40 +532,40 @@ classdef plotting_tools
             zlabel('$\it{z} \rm{[m]}$', 'Interpreter', 'latex');
 
 
-            % 두 번째 서브플롯 설정
-            subplot(1, 4, 2);
-            h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
-            title('Force Polytope');
-            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            axis equal;
-            xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
-            view(-45, 30);
+            % % 두 번째 서브플롯 설정
+            % subplot(1, 4, 2);
+            % h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
+            % title('Force Polytope');
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+            % axis equal;
+            % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
+            % view(-45, 30);
+            % 
+            % % 세 번째 서브플롯 설정
+            % subplot(1, 4, 3);
+            % h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
+            % title('Friction Polytope');
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+            % axis equal;
+            % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+            % view(-45, 30);
+            % 
+            % % 네 번째 서브플롯 설정
+            % subplot(1, 4, 4);
+            % h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
+            % title('Feasible Polytope');
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+            % axis equal;
+            % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+            % view(-45, 30);
 
-            % 세 번째 서브플롯 설정
-            subplot(1, 4, 3);
-            h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
-            title('Friction Polytope');
-            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            axis equal;
-            xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-            view(-45, 30);
-
-            % 네 번째 서브플롯 설정
-            subplot(1, 4, 4);
-            h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
-            title('Feasible Polytope');
-            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            axis equal;
-            xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-            view(-45, 30);
-
-            for iteration = 0:5:90
+            for iteration = 0:1:90
                 % 로봇의 각도 업데이트
                 self.q.hr = [deg2rad(iteration); deg2rad(-iteration); deg2rad(-iteration); deg2rad(iteration)];
 
@@ -594,7 +594,7 @@ classdef plotting_tools
                 self.feasible_wrench_polytope_total1_convhull = intersect(P3, P2);
 
                 % 첫 번째 서브플롯 설정
-                subplot(1,4,1);
+                % subplot(1,4,1);
                 cla;
                 h = plot3(0,0,0);pt = get(h,'Parent');xlim(pt,'manual');
                 xlim(pt,[-1 1]);ylim(pt,'manual');ylim(pt,[-1 1]);zlim(pt,'manual');
@@ -650,44 +650,44 @@ classdef plotting_tools
                 zlabel('$\it{z} \rm{[m]}$', 'Interpreter', 'latex');
 
 
-                % 첫 번째 서브플롯 설정
-                subplot(1, 4, 2);
-                cla;
-                h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
-                title('Force Polytope');
-                xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-                ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-                zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-                axis equal;
-                xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
-                view(-45, 30);
-
-                % 두 번째 서브플롯 설정
-                subplot(1, 4, 3);
-                cla;
-                h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
-                title('Friction Polytope');
-                xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-                ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-                zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-                axis equal;
-                xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-                view(-45, 30);
-
-                % 세 번째 서브플롯 설정
-                subplot(1, 4, 4);
-                cla;
-                h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
-                title('Feasible Polytope');
-                xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-                ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-                zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-                axis equal;
-                xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-                view(-45, 30);
+                % % 첫 번째 서브플롯 설정
+                % subplot(1, 4, 2);
+                % cla;
+                % h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
+                % title('Force Polytope');
+                % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+                % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+                % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+                % axis equal;
+                % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
+                % view(-45, 30);
+                % 
+                % % 두 번째 서브플롯 설정
+                % subplot(1, 4, 3);
+                % cla;
+                % h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
+                % title('Friction Polytope');
+                % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+                % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+                % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+                % axis equal;
+                % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+                % view(-45, 30);
+                % 
+                % % 세 번째 서브플롯 설정
+                % subplot(1, 4, 4);
+                % cla;
+                % h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
+                % title('Feasible Polytope');
+                % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+                % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+                % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+                % axis equal;
+                % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+                % view(-45, 30);
 
                 % 애니메이션 효과를 위한 일시 정지
-                pause(0.5);
+                pause(0.1);
             end
         end
         function fig = animation_fk_sim_xyz(self)
@@ -698,7 +698,8 @@ classdef plotting_tools
             self.dot_q_base = [0.0; 0.0; 0.0];
             self.dot_p_base = [0.0; 0.0; 0.0];
 
-            self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+            % self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+            self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
             self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
             self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
 
@@ -728,7 +729,7 @@ classdef plotting_tools
 
             fig = figure;
             % 첫 번째 서브플롯 설정
-            subplot(1,4,1);
+            % subplot(1,4,1);
             h = plot3(0,0,0);pt = get(h,'Parent');xlim(pt,'manual');
             xlim(pt,[-1 1]);ylim(pt,'manual');ylim(pt,[-1 1]);zlim(pt,'manual');
             zlim(pt,[-1 1]);axis equal;
@@ -783,40 +784,40 @@ classdef plotting_tools
             zlabel('$\it{z} \rm{[m]}$', 'Interpreter', 'latex');
 
 
-            % 첫 번째 서브플롯 설정
-            subplot(1, 4, 2);
-            h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
-            title('Force Polytope');
-            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            axis equal;
-            xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
-            view(-45, 30);
+            % % 첫 번째 서브플롯 설정
+            % subplot(1, 4, 2);
+            % h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
+            % title('Force Polytope');
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+            % axis equal;
+            % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
+            % view(-45, 30);
+            % 
+            % % 두 번째 서브플롯 설정
+            % subplot(1, 4, 3);
+            % h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
+            % title('Friction Polytope');
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+            % axis equal;
+            % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+            % view(-45, 30);
+            % 
+            % % 세 번째 서브플롯 설정
+            % subplot(1, 4, 4);
+            % h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
+            % title('Feasible Polytope');
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+            % axis equal;
+            % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+            % view(-45, 30);
 
-            % 두 번째 서브플롯 설정
-            subplot(1, 4, 3);
-            h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
-            title('Friction Polytope');
-            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            axis equal;
-            xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-            view(-45, 30);
-
-            % 세 번째 서브플롯 설정
-            subplot(1, 4, 4);
-            h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
-            title('Feasible Polytope');
-            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            axis equal;
-            xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-            view(-45, 30);
-
-            for iteration = 0:0.1:2
+            for iteration = 0:0.01:2
                 % 로봇의 각도 업데이트
                 % self.q.hr = [deg2rad(iteration); deg2rad(-iteration); deg2rad(-iteration); deg2rad(iteration)];
                 self.p_base = [-2.0; -3.0+iteration; 0.4594];
@@ -847,7 +848,7 @@ classdef plotting_tools
                 self.feasible_wrench_polytope_total1_convhull = intersect(P3, P2);
 
                 % 첫 번째 서브플롯 설정
-                subplot(1,4,1);
+                % subplot(1,4,1);
                 cla;
                 h = plot3(0,0,0);pt = get(h,'Parent');xlim(pt,'manual');
                 xlim(pt,[-1 1]);ylim(pt,'manual');ylim(pt,[-1 1]);zlim(pt,'manual');
@@ -903,44 +904,44 @@ classdef plotting_tools
                 zlabel('$\it{z} \rm{[m]}$', 'Interpreter', 'latex');
 
 
-                % 두 번째 서브플롯 설정
-                subplot(1, 4, 2);
-                cla;
-                h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
-                title('Force Polytope');
-                xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-                ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-                zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-                axis equal;
-                xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
-                view(-45, 30);
-
-                % 세 번째 서브플롯 설정
-                subplot(1, 4, 3);
-                cla;
-                h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
-                title('Friction Polytope');
-                xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-                ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-                zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-                axis equal;
-                xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-                view(-45, 30);
-
-                % 네 번째 서브플롯 설정
-                subplot(1, 4, 4);
-                cla;
-                h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
-                title('Feasible Polytope');
-                xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-                ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-                zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-                axis equal;
-                xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
-                view(-45, 30);
+                % % 두 번째 서브플롯 설정
+                % subplot(1, 4, 2);
+                % cla;
+                % h1 = plot(self.force_polytope_total_convhull, 'color', 'green', 'alpha', 0.5);
+                % title('Force Polytope');
+                % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+                % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+                % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+                % axis equal;
+                % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-7500 7500]);
+                % view(-45, 30);
+                % 
+                % % 세 번째 서브플롯 설정
+                % subplot(1, 4, 3);
+                % cla;
+                % h2 = plot(self.leg_contact_wrench_polytope_total_convhull, 'color', 'red', 'alpha', 0.5);
+                % title('Friction Polytope');
+                % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+                % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+                % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+                % axis equal;
+                % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+                % view(-45, 30);
+                % 
+                % % 네 번째 서브플롯 설정
+                % subplot(1, 4, 4);
+                % cla;
+                % h3 = plot(self.feasible_wrench_polytope_total1_convhull, 'color', 'blue', 'alpha', 0.5);
+                % title('Feasible Polytope');
+                % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+                % ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+                % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+                % axis equal;
+                % xlim([-7500 7500]); ylim([-7500 7500]); zlim([-0 7500]);
+                % view(-45, 30);
 
                 % 애니메이션 효과를 위한 일시 정지
-                pause(0.25);
+                pause(0.1);
             end
         end
     end
