@@ -29,6 +29,10 @@ classdef wlar_model
 
             self.ASC_L_tension_lim = [50.0 1000.0];  % min, max 
             self.ASC_R_tension_lim = [50.0 1000.0];  % min, max
+
+
+            self.ASC_L_tau_lim = 191; % Nm
+            self.ASC_R_tau_lim = 191; % Nm
         end
     end
 end
