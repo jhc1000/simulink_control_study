@@ -39,7 +39,7 @@ classdef plotting_tools
             % end
 
             for i=1:2
-                L_rope{i} = line([self.p.b_ej(1,i), self.v.b_ej_anc(1,i)],[self.p.b_ej(2,i),sign(3/2-i)*self.v.b_ej_anc(1,i)],[self.p.b_ej(3,i),self.v.b_ej_anc(3,i)],'Color','cyan','LineWidth',8);
+                L_rope{i} = line([self.p.b_ej(1,i), self.v.b_ej_anc(1,i)],[self.p.b_ej(2,i),self.v.b_ej_anc(2,i)],[self.p.b_ej(3,i),self.v.b_ej_anc(3,i)],'Color','cyan','LineWidth',8);
             end
 
             P3 = Polyhedron(((self.p.b_ej(:,1)+self.p.b_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
@@ -188,7 +188,7 @@ classdef plotting_tools
             % Plot the first convex hull
             fig = figure;
             subplot(1,3,1);
-            self.force_polytope_total_convhull.plot('color', 'green', 'alpha', 0.5);
+            self.leg_actuation_wrench_polytope_total_convhull.plot('color', 'green', 'alpha', 0.5);
             title('Actuation&Tension Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
             ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
@@ -199,7 +199,7 @@ classdef plotting_tools
 
             % Plot the second convex hull
             subplot(1,3,2);
-            self.leg_contact_wrench_polytope_total_convhull.plot('color', 'red', 'alpha', 0.5);
+            self.force_polytope_total_convhull.plot('color', 'red', 'alpha', 0.5);
             title('Contact Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
             ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');

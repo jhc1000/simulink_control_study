@@ -28,12 +28,12 @@ self.p_base = [-2.0; -1.972; 0.4879];
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
 
-% self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
+self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
 % self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
-self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+% self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
 % self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
 self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
 % self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
@@ -52,6 +52,12 @@ self = self.kinematics.Jacobians(self, self.dot_q_base, self.dot_p_base);
 self = geometry_computation.compute_force_wrench_polytope(self);
 
 %% GRF Estimation
+m = self.model.totalmass;
+g = 9.8.*math_tools.rpyToRot(self.slope(1), self.slope(2), self.slope(3))*[0; 0; 1];
+self.resultant_force.b = m.*g;
+self.resultant_moment.b = zeros(3,1);
+self.resultant_wrench.b = [self.resultant_force.b; self.resultant_moment.b];
+self.resultant_wrench_3d = [self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3)];
 
 %% Contact Wrench Cone
 self = geometry_computation.compute_contact_wrench_polytope(self);
@@ -59,7 +65,7 @@ self = geometry_computation.compute_contact_wrench_polytope(self);
 %% Ascender Wrench Polytope
 self = geometry_computation.compute_ascender_wrench_polytope(self);
 
-self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total_3d, self.asc_wrench_polytope_3d);
+self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_contact_wrench_polytope_total_3d, self.asc_wrench_polytope_3d);
 self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
 
 %% Total Feasible force Polytope
@@ -71,7 +77,7 @@ P3 = Polyhedron(self.force_polytope_total_3d);
 
 % Compute the intersection of the two polyhedra
 self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
-self.feasible_wrench_polytope_total1_convhull = intersect(P3, P2);
+self.feasible_wrench_polytope_total1_convhull = intersect(P1, P3);
 
 % 프로젝션 차원
 projection_dims_3d = [1, 2, 3];
@@ -81,48 +87,52 @@ projection_dims_2d = [1, 2];  % 예시: xy 평면으로 투영
 ProjectedPolytope3D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_3d);
 ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_2d);
 
-% % Plot the first convex hull
-% fig = figure;
-% subplot(1, 4, 1);
-% P3.plot('color', 'green', 'alpha', 0.5);
-% title('Force Polytope');
-% xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-% ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-% zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-% % axis equal;
-% view(-45, 30);
-% 
+fig = figure;
+subplot(1,3,1);
+self.leg_actuation_wrench_polytope_total_convhull.plot('color', 'green', 'alpha', 0.5);
+title('Actuation&Tension Wrench Polytope')
+xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% axis equal
+% xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
+view(-60,10);
+
+% Plot the second convex hull
+subplot(1,3,2);
+self.force_polytope_total_convhull.plot('color', 'red', 'alpha', 0.5);
+title('Contact Wrench Polytope')
+xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% axis equal
+% xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+view(-60,10);
+
 % % Plot the second convex hull
-% subplot(1, 4, 2);
-% P2.plot('color', 'red', 'alpha', 0.5);
-% title('Friction Polytope');
+% subplot(1,4,3);
+% Polyhedron(self.ascender_force_polytope).plot('color', 'cyan', 'alpha', 0.5);
+% title('Tenstion Wrench Polytope')
 % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-% ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+% ylabel('$\it{F_y} \rm{[Nm]}$', 'Interpreter', 'latex');
 % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-% % axis equal;
-% view(-45, 30);
-% 
-% % Plot the intersection
-% subplot(1, 4, 3);
-% self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
-% title('Feasible Polytope');
-% xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-% ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-% zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-% % axis equal;
-% view(-45, 30);
-% 
-% % 2D 프로젝션 서브플롯
-% subplot(1, 4, 4);
-% ProjectedPolytope2D.plot('color', 'gray', 'alpha', 0.5);
-% xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-% ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
-% grid on;
-% % axis equal;
-% view(-90,90);
-% title('Projected 2D Wrench Polytope');
-% 
-% sgtitle('Feasible Wrench Polytope');
+% % axis equal
+% % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+% % view(-45,30);
+
+% Plot the intersection
+subplot(1,3,3);
+hold on
+self.feasible_wrench_polytope_total1_convhull.plot('color', 'blue', 'alpha', 0.5);
+plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'o','Color','r','Markersize',10);
+title('Stable Wrench Polytope')
+xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% axis equal;
+% xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+view(-60,10);
+hold off
 
 %% 2D Region
 % Define the support region of the 4-leg contact area
@@ -222,12 +232,12 @@ ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(p
 
 %% Plotting
 % plotting_tools.plot_robot_space(self);
-% plotting_tools.plot_robot_base(self);
+plotting_tools.plot_robot_base(self);
 % plotting_tools.plot_force_polytopes(self);
 % plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);
-plotting_tools.plot_fesible_polytopes1(self);
+% plotting_tools.plot_fesible_polytopes1(self);
 
 %% Animation
 % plotting_tools.animation_fesible_polytopes(self);
