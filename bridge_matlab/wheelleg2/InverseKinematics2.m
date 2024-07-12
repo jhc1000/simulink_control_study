@@ -9,6 +9,7 @@ function [q] = InverseKinematics2(p,self)
     d3 = 66;
     n1 = [1; 1; -1; -1];
     n2 = [1; -1; 1; -1];
+    n3 = [-1; 1; 1; -1];
 
     % base movement
     Rg_b = rotz(self.q(3))*roty(self.q(2))*rotx(self.q(1));
@@ -20,8 +21,10 @@ function [q] = InverseKinematics2(p,self)
     for i = 1:4
     k1 = sqrt((p.b_w{i}(1)-n1(i)*lb)^2+(p.b_w{i}(2)-n2(i)*db)^2);
     beta = (acos((l1+d2+d3)/k1));
+    % alpha = atan2(abs(p.b_w{i}(1)-n1(i)*lb) , abs(p.b_w{i}(2)-n2(i)*db));
+    % q.hr(i) = n2(i)*(beta-alpha);
     alpha = atan2(abs(p.b_w{i}(1)-n1(i)*lb) , abs(p.b_w{i}(2)-n2(i)*db));
-    q.hr(i) = n2(i)*(beta-alpha);
+    q.hr(i) = n3(i)*(beta-alpha);
     k2 = (l1+d2+d3)*tan(beta);
 
     k3 = sqrt(k2^2+(-p.b_w{i}(3)-d1)^2);
