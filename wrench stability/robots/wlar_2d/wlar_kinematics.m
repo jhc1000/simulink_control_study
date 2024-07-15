@@ -60,7 +60,7 @@ classdef wlar_kinematics
        
             for i = 1:4  
                 % Base Coordinate  
-                self.R.b_hr(:,:,i) = rpyToRot(self.q.hr(i), 0.0, 0.0);
+                self.R.b_hr(:,:,i) = rpyToRot(0.0, 0.0, self.q.hr(i));
                 self.R.hr_hp(:,:,i) = rpyToRot(0.0, self.q.hp(i), 0.0);
                 self.R.hp_k(:,:,i) = rpyToRot(0.0, self.q.k(i), 0.0);
                 self.R.k_w(:,:,i) = rpyToRot(0.0, 0.0, 0.0);

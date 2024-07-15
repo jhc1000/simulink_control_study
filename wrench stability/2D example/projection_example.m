@@ -1,169 +1,124 @@
-% Clear workspace and close figures
-close all;
-clear;
-clc;
+close all
+clear all
+clc
 
-% 전체 경로 추가
-context();
+% 초기 사각형을 정의 (4개의 꼭지점)
+initial_rectangle = [1 1; 1 5; 5 5; 5 1];
 
-self.robot_name = "wlar_2d";
+% 초기 작은 사각형의 범위 설정
+x_min_initial = 2;
+x_max_initial = 3;
+y_min_initial = 2;
+y_max_initial = 3;
 
-self.model = wlar_model;
-self.kinematics = wlar_kinematics;
-self.dynamics = dynamics;
+% 초기 작은 사각형 내부의 임의의 점들 생성
+num_initial_points = 4;
+initial_range_points = [x_min_initial + (x_max_initial - x_min_initial) * rand(num_initial_points, 1), ...
+                        y_min_initial + (y_max_initial - y_min_initial) * rand(num_initial_points, 1)];
 
-self = self.model.init(self);
-self = self.kinematics.init(self);
-self = self.dynamics.init(self);
+% 예제 실행
+epsilon = 0.001;  % Area difference tolerance
+outer_points = initial_rectangle;  % Initial outer region points (rectangle vertices)
+inner_points = initial_range_points;  % Initial inner region points
 
-self.slope = [0.0, deg2rad(45), 0.0];
+% 반복 횟수 제한 (보통 무한 반복을 막기 위해 설정)
+max_iterations = 1000;
+iteration = 1;
 
-self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
-self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
+% 최적화 옵션 설정
+options = optimoptions('linprog', 'Display', 'iter');
 
-self.q_base = [0.0; deg2rad(0); 0.0];
-% self.p_base = [-2.0; -1.972; 0.4594];
-self.p_base = [-2.0; -1.972; 0.4879];
-% self.p_base = [-4.0; -2.5; 0.4594];
+while iteration <= max_iterations
+    % 확장된 점들의 볼록 다각형 (outer region) 계산
+    k_outer = boundary(outer_points(:,1), outer_points(:,2));
+    outer_polygon = polyshape(outer_points(k_outer, 1), outer_points(k_outer, 2));
 
-self.dot_q_base = [0.0; 0.0; 0.0];
-self.dot_p_base = [0.0; 0.0; 0.0];
+    % 초기 작은 사각형의 볼록 다각형 (inner region) 계산
+    k_inner = boundary(inner_points(:,1), inner_points(:,2));
+    inner_polygon = polyshape(inner_points(k_inner, 1), inner_points(k_inner, 2));
 
-% self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
-% self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
-% self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
-% self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
-% self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
-self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
-% self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
-self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
-% self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
-% self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
-self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
-self.q.asc = zeros(2,1);
+    % 두 영역의 면적 계산
+    area_outer = area(outer_polygon);
+    area_inner = area(inner_polygon);
 
-%% Kinematics and Jacobians
+    % 면적 차이 계산
+    area_difference = abs(area_outer - area_inner);
 
-self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
-self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_base);
+    % 면적 차이가 epsilon 이하거나 inner region이 outer region을 넘어가면 종료
+    if area_difference < epsilon || area_inner > area_outer
+        break;
+    end
 
-self = self.kinematics.Jacobians(self, self.dot_q_base, self.dot_p_base);
+    % inner_points의 평균 계산
+    mean_inner = mean(inner_points);
 
-%% Force Wrench Polytope
-self = geometry_computation.compute_force_wrench_polytope(self);
+    % outer_points를 inner_points 방향으로 축소
+    direction_vectors_outer = outer_points - mean_inner;
+    outer_points = outer_points - direction_vectors_outer * 0.01;  % Shrink factor towards inner region centroid
 
-%% GRF Estimation
+    % 선형 프로그램을 사용하여 inner_points 확장
+    num_points_inner = size(inner_points, 1);
+    f_inner = ones(num_points_inner, 1);  % 최소화를 위해 양수로 설정
+    A_inner = [];
+    b_inner = [];
+    Aeq_inner = ones(1, num_points_inner);  % 가중치의 합이 1이 되도록 설정
+    beq_inner = 1;
+    lb_inner = zeros(num_points_inner, 1);  % 가중치의 하한
+    ub_inner = ones(num_points_inner, 1);  % 가중치의 상한
 
-%% Contact Wrench Cone
-self = geometry_computation.compute_contact_wrench_polytope(self);
+    % 선형 프로그래밍을 통해 가중치 계산
+    [weights_inner, ~, exitflag_inner] = linprog(f_inner, A_inner, b_inner, Aeq_inner, beq_inner, lb_inner, ub_inner, options);
 
-%% Ascender Wrench Polytope
-self = geometry_computation.compute_ascender_wrench_polytope(self);
+    if exitflag_inner == 1  % 해결책이 발견된 경우
+        weighted_sum_inner = inner_points' * weights_inner;
+        new_point_inner = weighted_sum_inner / sum(weights_inner);
 
-self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total_3d, self.asc_wrench_polytope_3d);
-self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
+        % 각 점을 새로운 점 방향으로 확장
+        direction_vectors_inner = inner_points - mean(inner_points);
+        inner_points = inner_points + direction_vectors_inner * 0.01;  % Expansion factor for inner region
+    else
+        disp('Linear programming did not converge to a solution for inner region.');
+        break;  % 선형 프로그램 최적화가 수렴하지 않으면 종료
+    end
 
-%% Total Feasible force Polytope
+    iteration = iteration + 1;
+end
 
-% Create polyhedra from vertices
-P1 = Polyhedron(self.leg_actuation_wrench_polytope_total_3d);
-P2 = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
-P3 = Polyhedron(self.force_polytope_total_3d);
-
-% Compute the intersection of the two polyhedra
-self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
-self.feasible_wrench_polytope_total1_convhull = intersect(P3, P2);
-
-% Define the points
-points = [self.p.b_w(1,:).' self.p.b_w(2,:).'];  % Example points, adjust as needed
-
-% Plot the points
+% 최종 결과 플롯
 figure;
 hold on;
-plot(points(:,1), points(:,2), 'ko', 'MarkerSize', 10, 'LineWidth', 2);
-text(points(:,1), points(:,2), {' P1',' P2',' P3',' P4'},'VerticalAlignment','bottom','HorizontalAlignment','right')
+
+% 초기 사각형의 점들 플롯 (점으로 표시)
+scatter(initial_rectangle(:, 1), initial_rectangle(:, 2), 100, 'k', 'filled', 'MarkerEdgeColor', 'k', 'DisplayName', 'Original Rectangle Points');
+
+% 초기 사각형의 점들을 연결하여 dotted line으로 플롯
+initial_rectangle_connected = [initial_rectangle; initial_rectangle(1,:)];
+plot(initial_rectangle_connected(:,1), initial_rectangle_connected(:,2), 'k--', 'LineWidth', 1.5, 'DisplayName', 'Initial Rectangle');
+
+% 초기 outer region의 점들 플롯
+scatter(outer_points(:, 1), outer_points(:, 2), 100, 'b', 'filled', 'MarkerEdgeColor', 'k', 'DisplayName', 'Shrunk Outer Points');
+
+% 초기 inner region의 점들 플롯
+scatter(initial_range_points(:, 1), initial_range_points(:, 2), 100, 'g', 'filled', 'MarkerEdgeColor', 'k', 'DisplayName', 'Initial Inner Points');
+
+% 최종 inner region의 점들 플롯 (점으로 표시)
+scatter(inner_points(:, 1), inner_points(:, 2), 100, 'r', 'filled', 'MarkerEdgeColor', 'k', 'DisplayName', 'Final Expanded Inner Points');
+
+% 각 점들을 연결하는 경계선 플롯
+k_outer = boundary(outer_points(:,1), outer_points(:,2));
+plot(outer_points(k_outer,1), outer_points(k_outer,2), 'b-', 'LineWidth', 2, 'DisplayName', 'Boundary of Shrunk Outer Region');
+
+k_inner_initial = boundary(initial_range_points(:,1), initial_range_points(:,2));
+plot(initial_range_points(k_inner_initial,1), initial_range_points(k_inner_initial,2), 'g-', 'LineWidth', 2, 'DisplayName', 'Boundary of Initial Inner Region');
+
+k_inner_final = boundary(inner_points(:,1), inner_points(:,2));
+plot(inner_points(k_inner_final,1), inner_points(k_inner_final,2), 'r-', 'LineWidth', 2, 'DisplayName', 'Boundary of Final Expanded Inner Region');
+
+hold off;
+title('Comparison of Shrunk Outer and Expanded Inner Regions');
 xlabel('X');
 ylabel('Y');
-title('Points to be Constrained');
+legend show;
+grid on;
 
-% Compute the convex hull of the points
-K = convhull(points(:,1), points(:,2));
-plot(points(K,1), points(K,2), 'r-', 'LineWidth', 2);
-legend('Points', 'Convex Hull', 'Location', 'Best');
-axis equal;
-
-% Define constraints and solve using iterative projection and LP
-% Example of iterative projection (replace with actual StableRegionComputation class methods)
-epsilon = 1e-3;  % Stopping criterion for iterative projection
-
-% Example LP constraints (replace with actual constraints)
-ai = [0.0001; 0.0; 0.0];                % Example vector ai
-cxy = [0; 0; 0];             % Example initial guess for cxy
-alpha = self.slope(2);                 % Example angle alpha
-R_sb = eye(3);              % Example rotation matrix R_sb
-p = self.p.b_w;             % Example matrix p (3x4 matrix of random numbers)
-n = 4;                      % Example number n
-mu = 0.3;                   % Example value for mu
-tau_min = -100;             % Example minimum value for tau
-tau_max = 100;              % Example maximum value for tau
-ej = self.p.b_ej;            % Example matrix ej (3x2 matrix of random numbers)
-v = self.v.b_ej_anc;             % Example matrix v (3x2 matrix of random numbers)
-t_min = 50;                % Example minimum value for t
-t_max = 10000;              % Example maximum value for t
-
-% Initialize StableRegionComputation instance
-computation = StableRegionComputation(epsilon);
-
-% try
-    % Example of iterative projection to find feasible region
-    projected_points = iterativeProjection(points, computation);
-
-    % Example of LP to further refine the feasible region
-    [cxy_opt, f_opt] = computation.solveLP(self, ai, cxy, alpha, R_sb, p, n, mu, tau_min, tau_max, ej, v, t_min, t_max);
-    
-    % Plot the results
-    plot(projected_points(:,1), projected_points(:,2), 'b.', 'MarkerSize', 15);
-    text(projected_points(:,1), projected_points(:,2), {' P1',' P2',' P3',' P4'},'VerticalAlignment','bottom','HorizontalAlignment','right')
-    legend('Points', 'Convex Hull', 'Projected Points', 'Location', 'Best');
-    
-    % Example plot of optimal cxy and f (replace with actual plot based on your data)
-    figure;
-    % Plotting the optimal cxy
-    subplot(1, 2, 1);
-    plot(cxy_opt(1), cxy_opt(2), 'ro', 'MarkerSize', 10);
-    xlabel('cxy(1)');
-    ylabel('cxy(2)');
-    title('Optimal cxy');
-    axis equal;
-
-    % Plotting the optimal f
-    subplot(1, 2, 2);
-    bar(f_opt);
-    xlabel('Index');
-    ylabel('Value');
-    title('Optimal f');
-    
-% catch ME
-%     disp(ME.message);
-% end
-
-function projected_points = iterativeProjection(points, computation)
-    % Example iterative projection method (replace with actual implementation)
-    max_iter = 100;
-    tol = 1e-6;
-    current_points = points;
-    for iter = 1:max_iter
-        new_points = [];  % Store projected points
-        for i = 1:size(current_points, 1)
-            % Example projection (replace with actual projection)
-            projected_point = current_points(i, :);  % Example: no change
-            new_points = [new_points; projected_point];
-        end
-        current_points = new_points;
-        % Example stopping criterion (replace with actual criterion)
-        if max(abs(current_points - points)) < tol
-            break;
-        end
-    end
-    projected_points = current_points;
-end
+disp(['Final area difference: ', num2str(area_difference)]);

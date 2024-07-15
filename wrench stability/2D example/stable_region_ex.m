@@ -3,96 +3,101 @@ clear all
 clc
 
 % 초기 사각형을 정의 (4개의 꼭지점)
-rectangle_points = [1 1; 1 5; 5 5; 5 1];
+initial_rectangle = [1 1; 1 5; 5 5; 5 1];
 
-% 초기 사각형의 점들
-initial_rectangle = rectangle_points;
+% 초기 작은 사각형의 범위 설정
+x_min_initial = 2;
+x_max_initial = 3;
+y_min_initial = 2;
+y_max_initial = 3;
+
+% 초기 작은 사각형 내부의 임의의 점들 생성
+num_initial_points = 4;
+initial_range_points = [x_min_initial + (x_max_initial - x_min_initial) * rand(num_initial_points, 1), ...
+                        y_min_initial + (y_max_initial - y_min_initial) * rand(num_initial_points, 1)];
 
 % 예제 실행
-result = iterative_projection(initial_rectangle, 2);  % 예시로 2번만 반복하도록 설정
-disp('Reduced set of points:');
+num_iterations = 10;  % 반복 횟수 설정
+expansion_factor = 0.2;  % 사각형 확대 비율
+target_points = 20;  % 목표 점의 개수
+[result, initial_points] = iterative_expansion(initial_range_points, num_iterations, expansion_factor, target_points);
+disp('Expanded set of points:');
 disp(result);
 
-% 줄어든 점들과 중심을 플롯
+% 점들과 중심을 플롯
 centroid = mean(result);  % 중심 계산
 
 figure;
 hold on;
 
 % 초기 사각형의 점들 플롯
-scatter(initial_rectangle(:, 1), initial_rectangle(:, 2), 'filled', 'DisplayName', 'Original Rectangle Points');
-plot([initial_rectangle(:, 1); initial_rectangle(1, 1)], [initial_rectangle(:, 2); initial_rectangle(1, 2)], 'k--');
+scatter(initial_rectangle(:, 1), initial_rectangle(:, 2), 100, 'k', 'filled', 'DisplayName', 'Original Rectangle Points', 'MarkerEdgeColor', 'k');
 
-% 줄어든 지역의 점들 플롯
-scatter(result(:, 1), result(:, 2), 'filled', 'DisplayName', 'Reduced Points');
-plot([result(:, 1); result(1, 1)], [result(:, 2); result(1, 2)], 'r--');
+% 초기 사각형의 꼭지점들을 점선으로 연결
+plot([initial_rectangle(:, 1); initial_rectangle(1, 1)], [initial_rectangle(:, 2); initial_rectangle(1, 2)], 'k--', 'LineWidth', 1.5, 'DisplayName', 'Initial Rectangle Dotted Lines');
+
+% 초기 작은 사각형의 점들 플롯 (다른 색상)
+scatter(initial_points(:, 1), initial_points(:, 2), 100, 'b', 'filled', 'DisplayName', 'Initial Small Range Points', 'MarkerEdgeColor', 'k');
+
+% 최종 확장된 점들의 볼록 다각형 (convex hull) 플롯
+k = boundary(result(:,1), result(:,2));
+plot(result(k,1), result(k,2), 'b-', 'LineWidth', 2, 'DisplayName', 'Convex Hull of Expanded Points');
 
 % 중심 플롯
-scatter(centroid(1), centroid(2), 100, 'm', 'filled', 'DisplayName', 'Centroid');
+scatter(centroid(1), centroid(2), 300, 'm', 'filled', 'DisplayName', 'Centroid');
 
-% 초기 사각형 내부의 점들을 확인하여 플롯
-inside_points = points_inside_rectangle(initial_rectangle, result);
-scatter(inside_points(:, 1), inside_points(:, 2), 100, 'g', 'filled', 'DisplayName', 'Points Inside Rectangle');
+% 확장된 점들 플롯
+scatter(result(:, 1), result(:, 2), 100, 'r', 'filled', 'DisplayName', 'Final Expanded Points', 'MarkerEdgeColor', 'k');
 
 hold off;
-title('Comparison of Original and Reduced Set of Points');
+title('Comparison of Original and Expanded Set of Points');
 xlabel('X');
 ylabel('Y');
 legend show;
 grid on;
 
-% Linear programming 문제를 푸는 함수
-function [centroid, weights] = minimize_points(points)
-    num_points = size(points, 1);
-    f = ones(num_points, 1);  % minimize f^T * x (sum of distances)
-    Aeq = ones(1, num_points);  % sum of weights must be 1
-    beq = 1;
-    lb = zeros(num_points, 1);  % weights are between 0 and 1
-    ub = ones(num_points, 1);
+% Iterative expansion을 사용하여 사각형을 이루는 점들을 늘리기
+function [expanded_points, initial_points] = iterative_expansion(points, num_iterations, expansion_factor, target_points)
+    initial_points = points;
     
-    % Objective function to minimize (sum of distances)
-    distance_fun = @(x) sum(pdist2(points, points * x) .* x');
-    
-    % Solve linear programming problem
-    options = optimoptions('linprog', 'Algorithm', 'interior-point', 'Display', 'off');
-    [weights, ~, exitflag] = linprog(f, [], [], Aeq, beq, lb, ub, options);
-    
-    if exitflag == 1  % Check if solution is found
-        weighted_sum = points' * weights;
-        centroid = weighted_sum / sum(weights);
-    else
-        error('Linear programming did not converge to a solution.');
-    end
-end
-
-% Iterative projection을 사용하여 사각형을 이루는 점들을 줄이기
-function reduced_points = iterative_projection(points, num_iterations)
     for iter = 1:num_iterations
-        % Calculate distances from each point to all other points
-        distances = pdist2(points, points);
+        if size(points, 1) >= target_points
+            break;
+        end
         
-        % Find the index of the point farthest from any other point
-        [~, farthest_index] = max(sum(distances, 2));
+        % 선형 프로그램을 사용하여 점들을 확장
+        centroid = mean(points);  % 현재 점들의 중심 계산
+        num_points = size(points, 1);
+        f = -ones(num_points, 1);  % 최대화를 위해 음수로 설정
+        A = [];
+        b = [];
+        Aeq = ones(1, num_points);  % 가중치의 합이 1이 되도록 설정
+        beq = 1;
+        lb = zeros(num_points, 1);  % 가중치의 하한
+        ub = ones(num_points, 1);  % 가중치의 상한
         
-        % Remove the farthest point
-        points(farthest_index, :) = [];
+        % 선형 프로그램을 통해 가중치 계산
+        [weights, ~, exitflag] = linprog(f, A, b, Aeq, beq, lb, ub);
+        
+        if exitflag == 1  % 해결책이 발견된 경우
+            weighted_sum = points' * weights;
+            new_point = weighted_sum / sum(weights);
+            
+            % 각 점을 새로운 점 방향으로 확장
+            direction_vectors = points - centroid;
+            new_points = points + direction_vectors * expansion_factor;
+        else
+            error('Linear programming did not converge to a solution.');
+        end
+        
+        points = [points; new_points];  % 새로운 점들을 기존 점들에 추가
+        points = unique(points, 'rows');  % 중복 점 제거
     end
-    reduced_points = points;
-end
-
-% 사각형 내부에 있는 점들을 확인하는 함수
-function inside_points = points_inside_rectangle(rectangle_points, points)
-    % 사각형의 점 좌표
-    x = rectangle_points(:, 1);
-    y = rectangle_points(:, 2);
     
-    % 사각형의 경계를 정의
-    rect_x = [x; x(1)];
-    rect_y = [y; y(1)];
-    
-    % 점들이 사각형 내부에 있는지 확인
-    inside = inpolygon(points(:, 1), points(:, 2), rect_x, rect_y);
-    
-    % 사각형 내부에 있는 점들 반환
-    inside_points = points(inside, :);
+    % 목표 점의 개수까지 점을 채우고 나서 마지막 결과 반환
+    if size(points, 1) > target_points
+        expanded_points = points(1:target_points, :);
+    else
+        expanded_points = points;
+    end
 end
