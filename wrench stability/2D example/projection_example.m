@@ -3,12 +3,12 @@ clear all
 clc
 
 % 초기 사각형을 정의 (4개의 꼭지점)
-initial_rectangle = [1 1; 1 5; 5 5; 5 1];
+initial_rectangle = [5 5;5 -5;-5 -5;-5 5];
 
 % 초기 작은 사각형의 범위 설정
-x_min_initial = 2;
+x_min_initial = -3;
 x_max_initial = 3;
-y_min_initial = 2;
+y_min_initial = -3;
 y_max_initial = 3;
 
 % 초기 작은 사각형 내부의 임의의 점들 생성

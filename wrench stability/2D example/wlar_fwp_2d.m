@@ -75,96 +75,96 @@ self.actuation_polytope_total_convhull = Polyhedron(self.actuation_polytope_tota
 
 %% Ascender Actuation Wrench Polytope
 
-fig = figure;
-hold on
-plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
-self.ascender_actuation_force_polytope_convhull.plot('color', 'cyan', 'alpha', 0.5);
-title('Ascender Actuation Wrench Polytope')
-xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
-zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-% axis equal
-% xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
-view(-60,10);
-hold off
+% fig = figure;
+% hold on
+% plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
+% quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+% self.ascender_actuation_force_polytope_convhull.plot('color', 'cyan', 'alpha', 0.5);
+% title('Ascender Actuation Wrench Polytope')
+% xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+% ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+% zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% % axis equal
+% % xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
+% view(-60,10);
+% hold off
 
 
 %% Total Feasible force Polytope
 
-% Create polyhedra from vertices
-P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
-P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
-P3 = Polyhedron(self.force_polytope_total_3d);
-P4 = Polyhedron(self.actuation_polytope_total_3d);
-
-% Compute the intersection of the two polyhedra
-self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
-self.feasible_wrench_polytope_total1_convhull = intersect(P1, P3);
-self.feasible_wrench_polytope_total2_convhull = intersect(P3, P4);
-% 프로젝션 차원
-projection_dims_3d = [1, 2, 3];
-projection_dims_2d = [1, 2];  % 예시: xy 평면으로 투영
-
-% 초기 폴리토프 프로젝션
-ProjectedPolytope3D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_3d);
-ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_2d);
-
-fig = figure;
-subplot(1,3,1);
-hold on
-plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
-P4.plot('color', 'green', 'alpha', 0.5);
-title('Actuation Wrench Polytope')
-xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
-zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-% axis equal
-% xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
-view(-60,10);
-hold off
-
-% Plot the second convex hull
-subplot(1,3,2);
-hold on
-plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
-P3.plot('color', 'red', 'alpha', 0.5);
-title('Contact&Tension Wrench Polytope')
-xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
-zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-% axis equal
-xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-view(-60,10);
-hold off
-
-% % Plot the second convex hull
-% subplot(1,4,3);
-% Polyhedron(self.ascender_force_polytope).plot('color', 'cyan', 'alpha', 0.5);
-% title('Tenstion Wrench Polytope')
+% % Create polyhedra from vertices
+% P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
+% P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
+% P3 = Polyhedron(self.force_polytope_total_3d);
+% P4 = Polyhedron(self.actuation_polytope_total_3d);
+% 
+% % Compute the intersection of the two polyhedra
+% self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
+% self.feasible_wrench_polytope_total1_convhull = intersect(P1, P3);
+% self.feasible_wrench_polytope_total2_convhull = intersect(P3, P4);
+% % 프로젝션 차원
+% projection_dims_3d = [1, 2, 3];
+% projection_dims_2d = [1, 2];  % 예시: xy 평면으로 투영
+% 
+% % 초기 폴리토프 프로젝션
+% ProjectedPolytope3D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_3d);
+% ProjectedPolytope2D = self.feasible_wrench_polytope_total1_convhull.projection(projection_dims_2d);
+% 
+% fig = figure;
+% subplot(1,3,1);
+% hold on
+% plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
+% quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+% P4.plot('color', 'green', 'alpha', 0.5);
+% title('Actuation Wrench Polytope')
 % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-% ylabel('$\it{F_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+% ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
 % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
 % % axis equal
-% % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-% % view(-45,30);
-
-% Plot the intersection
-subplot(1,3,3);
-hold on
-plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
-self.feasible_wrench_polytope_total2_convhull.plot('color', 'blue', 'alpha', 0.5);
-title('Stable Wrench Polytope')
-xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
-zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-% axis equal;
+% % xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
+% view(-60,10);
+% hold off
+% 
+% % Plot the second convex hull
+% subplot(1,3,2);
+% hold on
+% plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
+% quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+% P3.plot('color', 'red', 'alpha', 0.5);
+% title('Contact&Tension Wrench Polytope')
+% xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+% ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+% zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% % axis equal
 % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-view(-60,10);
-hold off
+% view(-60,10);
+% hold off
+% 
+% % % Plot the second convex hull
+% % subplot(1,4,3);
+% % Polyhedron(self.ascender_force_polytope).plot('color', 'cyan', 'alpha', 0.5);
+% % title('Tenstion Wrench Polytope')
+% % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+% % ylabel('$\it{F_y} \rm{[Nm]}$', 'Interpreter', 'latex');
+% % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% % % axis equal
+% % % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+% % % view(-45,30);
+% 
+% % Plot the intersection
+% subplot(1,3,3);
+% hold on
+% plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
+% quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+% self.feasible_wrench_polytope_total2_convhull.plot('color', 'blue', 'alpha', 0.5);
+% title('Stable Wrench Polytope')
+% xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+% ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+% zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
+% % axis equal;
+% % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
+% view(-60,10);
+% hold off
 
 %% 2D Region
 % Define the support region of the 4-leg contact area
