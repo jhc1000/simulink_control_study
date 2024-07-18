@@ -29,12 +29,12 @@ self.p_base = [-2.0; -1.972; 0.4879];
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
 
-% self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
+self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
 % self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
-self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+% self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
 % self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
 self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
 % self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
@@ -268,8 +268,8 @@ plotting_tools.plot_robot_space(self);
 % plotting_tools.plot_force_polytopes(self);
 % plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
-% plotting_tools.plot_fesible_polytopes(self);
-% plotting_tools.plot_fesible_polytopes1(self);
+plotting_tools.plot_fesible_polytopes(self);
+plotting_tools.plot_fesible_polytopes1(self);
 
 %% Animation
 % plotting_tools.animation_fesible_polytopes(self);

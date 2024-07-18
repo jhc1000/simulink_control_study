@@ -59,7 +59,6 @@ classdef geometry_computation
                 -self.model.RH_tau_lim(1) -self.model.RH_tau_lim(1) -self.model.RH_tau_lim(3)];
 
             for i=1:4
-                % self.psuedo_inverse_jacobian(:,:,i) = (self.Jacobian_b(:,:,i)*self.Jacobian_b(:,:,i).')\self.Jacobian_b(:,:,i);
                 self.psuedo_inverse_jacobian(:,:,i) = pinv(self.Jacobian_b(:,:,i));
                 for j=1:8
                     self.leg_actuation_wrench_polytope(j,:,i) = ((self.psuedo_inverse_jacobian(:,:,i).'*self.leg_torque_space(j,:,i).').');
@@ -81,25 +80,25 @@ classdef geometry_computation
             self.leg_actuation_wrench_polytope_total_convhull = Polyhedron(self.leg_actuation_wrench_polytope_total);
         end
         function self = compute_contact_wrench_polytope(self)
-            self.leg_friction_space(:,:,1) = 10000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,1) = 5000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
                 0.0 0.0 0.0];
 
-            self.leg_friction_space(:,:,2) = 10000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,2) = 5000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
                 0.0 0.0 0.0];
 
-            self.leg_friction_space(:,:,3) = 10000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,3) = 5000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
                 0.0 0.0 0.0];
 
-            self.leg_friction_space(:,:,4) = 10000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,4) = 5000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
