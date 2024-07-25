@@ -3,12 +3,12 @@ classdef wlar_kinematics
         x_b2hr = 0.25825;  % b2hr
         z_b2hr = 0.0605;    % b2hr
         z_hr2hp = 0.094; % hr2hp
-        z_hp2k = 0.30116;   % hp2k
-        z_k2w = 0.31884;    % k2w
+        z_hp2k = 0.3011;   % hp2k
+        z_k2w = 0.3189;    % k2w
         y_b2hr = 0.283;   % b2hr
-        y_hr2hp = 0.09885;  % hr2hp
-        y_hp2k = 0.001;   % hp2k
-        y_k2w = 0.039;    % k2w
+        y_hr2hp = 0.058;  % hr2hp
+        y_hp2k = 0.0;   % hp2k
+        y_k2w = 0.0;    % k2w
         % n1 = [1; 1; -1; -1];
         % n2 = [1; -1; 1; -1];
         % 
@@ -18,15 +18,15 @@ classdef wlar_kinematics
     end
     methods
         function self = init(~, self)
-            self.x_b2hr = 0.2515;  % b2hr
-            self.z_b2hr = -0.0605;     % b2hr
+            self.x_b2hr = 0.25825;  % b2hr
+            self.z_b2hr = 0.0605;     % b2hr
             self.z_hr2hp = 0.094; % hr2hp
-            self.z_hp2k = 0.30116;   % hp2k
-            self.z_k2w = 0.31884;    % k2w
-            self.y_b2hr = 0.288;   % b2hr
-            self.y_hr2hp = 0.09885;  % hr2hp
-            self.y_hp2k = 0.001;   % hp2k
-            self.y_k2w = 0.039;    % k2w
+            self.z_hp2k = 0.3011;   % hp2k
+            self.z_k2w = 0.3189;    % k2w
+            self.y_b2hr = 0.283;   % b2hr
+            self.y_hr2hp = 0.058;  % hr2hp
+            self.y_hp2k = 0.0;   % hp2k
+            self.y_k2w = 0.0;    % k2w
             self.n1 = [1; 1; -1; -1];
             self.n2 = [1; -1; 1; -1];
     
@@ -69,7 +69,7 @@ classdef wlar_kinematics
                 self.R.b_k(:,:,i) = self.R.b_hr(:,:,i)*self.R.hr_hp(:,:,i)*self.R.hp_k(:,:,i);
                 self.R.b_w(:,:,i) = self.R.b_hr(:,:,i)*self.R.hr_hp(:,:,i)*self.R.hp_k(:,:,i)*self.R.k_w(:,:,i);
 
-                self.p.b_hr(:,i) = [self.n1(i)*(self.x_b2hr); self.n2(i)*(self.y_b2hr); -(self.z_b2hr)];
+                self.p.b_hr(:,i) = [self.n1(i)*(self.x_b2hr); self.n2(i)*(self.y_b2hr); (self.z_b2hr)];
                 self.p.hr_hp(:,i) = [0.0; self.n2(i)*(self.y_hr2hp); -(self.z_hr2hp)];
                 self.p.hp_k(:,i) = [0.0; self.n2(i)*(self.y_hp2k); -(self.z_hp2k)];
                 self.p.k_w(:,i) = [0.0; self.n2(i)*(self.y_k2w); -(self.z_hp2k)];

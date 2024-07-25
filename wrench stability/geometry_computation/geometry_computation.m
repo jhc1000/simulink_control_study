@@ -80,25 +80,25 @@ classdef geometry_computation
             self.leg_actuation_wrench_polytope_total_convhull = Polyhedron(self.leg_actuation_wrench_polytope_total);
         end
         function self = compute_contact_wrench_polytope(self)
-            self.leg_friction_space(:,:,1) = 5000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,1) = 1000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
                 0.0 0.0 0.0];
 
-            self.leg_friction_space(:,:,2) = 5000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,2) = 1000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
                 0.0 0.0 0.0];
 
-            self.leg_friction_space(:,:,3) = 5000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,3) = 1000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
                 0.0 0.0 0.0];
 
-            self.leg_friction_space(:,:,4) = 5000.*[self.mu self.mu 1.0;
+            self.leg_friction_space(:,:,4) = 1000.*[self.mu self.mu 1.0;
                 -self.mu self.mu 1.0;
                 self.mu -self.mu 1.0;
                 -self.mu -self.mu 1.0;
@@ -134,8 +134,8 @@ classdef geometry_computation
                 self.ASC_L_tau_lim -self.ASC_R_tau_lim;
                 -self.ASC_L_tau_lim -self.ASC_R_tau_lim];
 
-            self.asc_wrench_matrix = [self.v.b_ej_anc(:,1) self.v.b_ej_anc(:,2);
-                cross(self.p.b_ej(:,1),self.v.b_ej_anc(:,1)) cross(self.p.b_ej(:,2),self.v.b_ej_anc(:,2))];
+            self.asc_wrench_matrix = [(self.v.b_ej_anc(:,1)/norm(self.v.b_ej_anc(:,1))) (self.v.b_ej_anc(:,2)/norm(self.v.b_ej_anc(:,2)));
+                cross(self.p.b_ej(:,1),(self.v.b_ej_anc(:,1)/norm(self.v.b_ej_anc(:,1)))) cross(self.p.b_ej(:,2),(self.v.b_ej_anc(:,2)/norm(self.v.b_ej_anc(:,2))))];
 
             self.asc_psuedo_inverse_jacobian(:,:) = pinv(self.asc_Jacobian_b(:,:));
             for i = 1:4

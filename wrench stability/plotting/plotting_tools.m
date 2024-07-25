@@ -39,7 +39,7 @@ classdef plotting_tools
             % end
 
             for i=1:2
-                L_rope{i} = line([self.p.b_ej(1,i), self.v.b_ej_anc(1,i)],[self.p.b_ej(2,i),self.v.b_ej_anc(2,i)],[self.p.b_ej(3,i),self.v.b_ej_anc(3,i)],'Color','cyan','LineWidth',8);
+                L_rope{i} = line([self.p.b_ej(1,i), self.v.b_ej_anc(1,i)],[self.p.b_ej(2,i),self.v.b_ej_anc(2,i)],[self.p.b_ej(3,i),self.v.b_ej_anc(3,i)],'Color','magenta','LineWidth',8);
             end
 
             P3 = Polyhedron(((self.p.b_ej(:,1)+self.p.b_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
@@ -72,7 +72,7 @@ classdef plotting_tools
                 set(L2{i},'ZData',[point2.z{i},point3.z{i}],'YData',[point2.y{i},point3.y{i}],'XData',[point2.x{i},point3.x{i}]);
                 set(L3{i},'ZData',[point3.z{i},point4.z{i}],'YData',[point3.y{i},point4.y{i}],'XData',[point3.x{i},point4.x{i}]);
             end
-            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','cyan','LineWidth',3);
+            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','magenta','LineWidth',3);
             Lb{2} = line([point1.x{2}, point1.x{4}],[point1.y{2},point1.y{4}],[point1.z{2},point1.z{4}],'Color','b','LineWidth',3);
             Lb{3} = line([point1.x{3}, point1.x{4}],[point1.y{3},point1.y{4}],[point1.z{3},point1.z{4}],'Color','b','LineWidth',3);
             Lb{4} = line([point1.x{3}, point1.x{1}],[point1.y{3},point1.y{1}],[point1.z{3},point1.z{1}],'Color','b','LineWidth',3);
@@ -82,23 +82,28 @@ classdef plotting_tools
             Lw{4} = line([point4.x{3}, point4.x{1}],[point4.y{3},point4.y{1}],[point4.z{3},point4.z{1}],'Color','k','LineWidth',1);
 
             for i=1:2
-                plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','cyan','MarkerSize',10)
-                plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','cyan','MarkerSize',10)
-                L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','cyan','LineWidth',3);
+                plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','magenta','MarkerSize',10)
+                plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','magenta','MarkerSize',10)
+                L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','magenta','LineWidth',3);
             end
 
             for i=1:4
-                P1 = Polyhedron(self.p.s_w(:,i).'+0.001.*self.leg_actuation_force_polytope(:,:,i));
+                P1 = Polyhedron(self.p.s_w(:,i).'+0.0005.*self.leg_actuation_force_polytope(:,:,i));
                 P1.plot('color', 'green', 'alpha', 0.5);
             end
 
             for i=1:4
-                P2 = Polyhedron(self.p.s_w(:,i).' + 0.000025.*self.leg_contact_force_polytope(:,:,i));
+                P2 = Polyhedron(self.p.s_w(:,i).' + 0.00025.*self.leg_contact_force_polytope(:,:,i));
                 P2.plot('color', 'red', 'alpha', 0.5);
             end
 
             P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
-            P3.plot('color', 'cyan', 'alpha', 0.5);
+            P3.plot('color', 'magenta', 'alpha', 0.5);
+
+            self.zmp_polytope.plot('color', 'gray', 'alpha', 0.5);
+            plot3([self.p_base(1), self.com_xy_position(1)],[self.p_base(2), self.com_xy_position(2)],[self.p_base(3), self.com_xy_position(3)], '--', 'Color','cyan','LineWidth',3);
+            plot3(self.com_xy_position(1),self.com_xy_position(2),self.com_xy_position(3),'.','Color','cyan','Markersize',20);
+            
             hold off
 
             xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');
@@ -167,8 +172,8 @@ classdef plotting_tools
             fig = figure;
             subplot(1,3,1);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             P1.plot('color', 'green', 'alpha', 0.5);
             title('Actuation Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
@@ -182,8 +187,8 @@ classdef plotting_tools
             % Plot the second convex hull
             subplot(1,3,2);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             P2.plot('color', 'red', 'alpha', 0.5);
             title('Contact&Tension Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
@@ -208,8 +213,8 @@ classdef plotting_tools
             % Plot the intersection
             subplot(1,3,3);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             self.feasible_wrench_polytope_total_convhull.plot('color', 'blue', 'alpha', 0.5);
             title('Stable Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
@@ -240,8 +245,8 @@ classdef plotting_tools
             fig = figure;
             subplot(1,3,1);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             P4.plot('color', 'green', 'alpha', 0.5);
             title('Actuation Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
@@ -255,8 +260,8 @@ classdef plotting_tools
             % Plot the second convex hull
             subplot(1,3,2);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             P3.plot('color', 'red', 'alpha', 0.5);
             title('Contact&Tension Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
@@ -281,8 +286,8 @@ classdef plotting_tools
             % Plot the intersection
             subplot(1,3,3);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','magenta','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','magenta','LineWidth',3);
+            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             self.feasible_wrench_polytope_total2_convhull.plot('color', 'blue', 'alpha', 0.5);
             title('Stable Wrench Polytope')
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
@@ -582,7 +587,7 @@ classdef plotting_tools
                 set(L2{i},'ZData',[point2.z{i},point3.z{i}],'YData',[point2.y{i},point3.y{i}],'XData',[point2.x{i},point3.x{i}]);
                 set(L3{i},'ZData',[point3.z{i},point4.z{i}],'YData',[point3.y{i},point4.y{i}],'XData',[point3.x{i},point4.x{i}]);
             end
-            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','cyan','LineWidth',3);
+            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','magenta','LineWidth',3);
             Lb{2} = line([point1.x{2}, point1.x{4}],[point1.y{2},point1.y{4}],[point1.z{2},point1.z{4}],'Color','b','LineWidth',3);
             Lb{3} = line([point1.x{3}, point1.x{4}],[point1.y{3},point1.y{4}],[point1.z{3},point1.z{4}],'Color','b','LineWidth',3);
             Lb{4} = line([point1.x{3}, point1.x{1}],[point1.y{3},point1.y{1}],[point1.z{3},point1.z{1}],'Color','b','LineWidth',3);
@@ -592,9 +597,9 @@ classdef plotting_tools
             Lw{4} = line([point4.x{3}, point4.x{1}],[point4.y{3},point4.y{1}],[point4.z{3},point4.z{1}],'Color','k','LineWidth',1);
 
             for i=1:2
-                plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','cyan','MarkerSize',10)
-                plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','cyan','MarkerSize',10)
-                L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','cyan','LineWidth',3);
+                plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','magenta','MarkerSize',10)
+                plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','magenta','MarkerSize',10)
+                L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','magenta','LineWidth',3);
             end
 
             for i=1:4
@@ -608,7 +613,7 @@ classdef plotting_tools
             end
 
             P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
-            P3.plot('color', 'cyan', 'alpha', 0.5);
+            P3.plot('color', 'magenta', 'alpha', 0.5);
             hold off
 
             xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');
@@ -700,7 +705,7 @@ classdef plotting_tools
                     set(L2{i},'ZData',[point2.z{i},point3.z{i}],'YData',[point2.y{i},point3.y{i}],'XData',[point2.x{i},point3.x{i}]);
                     set(L3{i},'ZData',[point3.z{i},point4.z{i}],'YData',[point3.y{i},point4.y{i}],'XData',[point3.x{i},point4.x{i}]);
                 end
-                Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','cyan','LineWidth',3);
+                Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','magenta','LineWidth',3);
                 Lb{2} = line([point1.x{2}, point1.x{4}],[point1.y{2},point1.y{4}],[point1.z{2},point1.z{4}],'Color','b','LineWidth',3);
                 Lb{3} = line([point1.x{3}, point1.x{4}],[point1.y{3},point1.y{4}],[point1.z{3},point1.z{4}],'Color','b','LineWidth',3);
                 Lb{4} = line([point1.x{3}, point1.x{1}],[point1.y{3},point1.y{1}],[point1.z{3},point1.z{1}],'Color','b','LineWidth',3);
@@ -710,9 +715,9 @@ classdef plotting_tools
                 Lw{4} = line([point4.x{3}, point4.x{1}],[point4.y{3},point4.y{1}],[point4.z{3},point4.z{1}],'Color','k','LineWidth',1);
 
                 for i=1:2
-                    plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','cyan','MarkerSize',10)
-                    plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','cyan','MarkerSize',10)
-                    L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','cyan','LineWidth',3);
+                    plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','magenta','MarkerSize',10)
+                    plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','magenta','MarkerSize',10)
+                    L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','magenta','LineWidth',3);
                 end
 
                 for i=1:4
@@ -726,7 +731,7 @@ classdef plotting_tools
                 end
 
                 P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
-                P3.plot('color', 'cyan', 'alpha', 0.5);
+                P3.plot('color', 'magenta', 'alpha', 0.5);
                 hold off
 
                 xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');
@@ -833,7 +838,7 @@ classdef plotting_tools
                 set(L2{i},'ZData',[point2.z{i},point3.z{i}],'YData',[point2.y{i},point3.y{i}],'XData',[point2.x{i},point3.x{i}]);
                 set(L3{i},'ZData',[point3.z{i},point4.z{i}],'YData',[point3.y{i},point4.y{i}],'XData',[point3.x{i},point4.x{i}]);
             end
-            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','cyan','LineWidth',3);
+            Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','magenta','LineWidth',3);
             Lb{2} = line([point1.x{2}, point1.x{4}],[point1.y{2},point1.y{4}],[point1.z{2},point1.z{4}],'Color','b','LineWidth',3);
             Lb{3} = line([point1.x{3}, point1.x{4}],[point1.y{3},point1.y{4}],[point1.z{3},point1.z{4}],'Color','b','LineWidth',3);
             Lb{4} = line([point1.x{3}, point1.x{1}],[point1.y{3},point1.y{1}],[point1.z{3},point1.z{1}],'Color','b','LineWidth',3);
@@ -843,9 +848,9 @@ classdef plotting_tools
             Lw{4} = line([point4.x{3}, point4.x{1}],[point4.y{3},point4.y{1}],[point4.z{3},point4.z{1}],'Color','k','LineWidth',1);
 
             for i=1:2
-                plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','cyan','MarkerSize',10)
-                plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','cyan','MarkerSize',10)
-                L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','cyan','LineWidth',3);
+                plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','magenta','MarkerSize',10)
+                plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','magenta','MarkerSize',10)
+                L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','magenta','LineWidth',3);
             end
 
             for i=1:4
@@ -859,7 +864,7 @@ classdef plotting_tools
             end
 
             P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
-            P3.plot('color', 'cyan', 'alpha', 0.5);
+            P3.plot('color', 'magenta', 'alpha', 0.5);
             hold off
 
             xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');
@@ -953,7 +958,7 @@ classdef plotting_tools
                     set(L2{i},'ZData',[point2.z{i},point3.z{i}],'YData',[point2.y{i},point3.y{i}],'XData',[point2.x{i},point3.x{i}]);
                     set(L3{i},'ZData',[point3.z{i},point4.z{i}],'YData',[point3.y{i},point4.y{i}],'XData',[point3.x{i},point4.x{i}]);
                 end
-                Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','cyan','LineWidth',3);
+                Lb{1} = line([point1.x{1}, point1.x{2}],[point1.y{1},point1.y{2}],[point1.z{1},point1.z{2}],'Color','magenta','LineWidth',3);
                 Lb{2} = line([point1.x{2}, point1.x{4}],[point1.y{2},point1.y{4}],[point1.z{2},point1.z{4}],'Color','b','LineWidth',3);
                 Lb{3} = line([point1.x{3}, point1.x{4}],[point1.y{3},point1.y{4}],[point1.z{3},point1.z{4}],'Color','b','LineWidth',3);
                 Lb{4} = line([point1.x{3}, point1.x{1}],[point1.y{3},point1.y{1}],[point1.z{3},point1.z{1}],'Color','b','LineWidth',3);
@@ -963,9 +968,9 @@ classdef plotting_tools
                 Lw{4} = line([point4.x{3}, point4.x{1}],[point4.y{3},point4.y{1}],[point4.z{3},point4.z{1}],'Color','k','LineWidth',1);
 
                 for i=1:2
-                    plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','cyan','MarkerSize',10)
-                    plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','cyan','MarkerSize',10)
-                    L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','cyan','LineWidth',3);
+                    plot3(self.p.s_ej(1,i),self.p.s_ej(2,i),self.p.s_ej(3,i),'.','Color','magenta','MarkerSize',10)
+                    plot3(self.anchor.position(1,1,i),self.anchor.position(2,1,i),self.anchor.position(3,1,i),'.','Color','magenta','MarkerSize',10)
+                    L_rope{i} = line([self.p.s_ej(1,i), self.anchor.position(1,1,i)],[self.p.s_ej(2,i),self.anchor.position(2,1,i)],[self.p.s_ej(3,i),self.anchor.position(3,1,i)],'Color','magenta','LineWidth',3);
                 end
 
                 for i=1:4
@@ -979,7 +984,7 @@ classdef plotting_tools
                 end
 
                 P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
-                P3.plot('color', 'cyan', 'alpha', 0.5);
+                P3.plot('color', 'magenta', 'alpha', 0.5);
                 hold off
 
                 xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');

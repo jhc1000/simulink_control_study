@@ -15,7 +15,7 @@ classdef wlar_model
     end
     methods
         function self = init(~, self)
-            self.totalmass = 80;
+            self.totalmass = 80.0;
             % torque limits for each leg 
             % HR = Hip roll
             % HP = Hip pitch
@@ -31,8 +31,8 @@ classdef wlar_model
             self.ASC_R_tension_lim = [50.0 1000.0];  % min, max
 
 
-            self.ASC_L_tau_lim = 191; % Nm
-            self.ASC_R_tau_lim = 191; % Nm
+            self.ASC_L_tau_lim = 191.0; % Nm
+            self.ASC_R_tau_lim = 191.0; % Nm
         end
     end
 end
