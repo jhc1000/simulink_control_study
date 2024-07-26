@@ -29,12 +29,14 @@ self.p_base = [-2.0; -1.972; 0.4879];
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
 
-self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
+self.ddot_p_base = [0.0; 0.0; 0.0];
+
+% self.q.hr = [deg2rad(90); deg2rad(-90); deg2rad(-90); deg2rad(90)];
 % self.q.hr = [deg2rad(60); deg2rad(-60); deg2rad(-60); deg2rad(60)];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
-% self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
 self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
 self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
 % self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
@@ -193,100 +195,30 @@ self.actuation_polytope_total_convhull = Polyhedron(self.actuation_polytope_tota
 % R_sb = eye(3);          % Rotation matrix (identity for simplicity)
 % p = self.p.s_w;
 % 
-% n = 3;                  % Placeholder for n (not used in current functions)
+% num_contact = 3;  
+% bool_contact = [1, 1, 1, 0];  
 % mu = 0.5;               % Friction coefficient
-% tau_min = -1;           % Minimum torque constraint
-% tau_max = 1;            % Maximum torque constraint
-% ej = [1 0;              % Directions ej defining the constraints
-%       0 1];
-% v = [1 1;               % Velocities v defining the constraints
-%      -1 1];
-% t_min = -1;             % Minimum force constraint
-% t_max = 1;              % Maximum force constraint
+% tau_min = -self.model.LF_tau_lim;           % Minimum torque constraint
+% tau_max = self.model.LF_tau_lim;            % Maximum torque constraint
+% ej = self.p.s_ej;
+% v = [(self.v.b_ej_anc(:,1))/norm(self.v.b_ej_anc(:,1)), (self.v.b_ej_anc(:,2))/norm(self.v.b_ej_anc(:,2))];
+% t_min = self.ASC_L_tension_lim(1);             % Minimum force constraint
+% t_max =  self.ASC_L_tension_lim(2);            % Maximum force constraint
 % epsilon = 0.01;         % Stopping criterion epsilon
-% 
-% % Initialize the feasible region
-% try
-%     Yfa = geometry_computation.feasibleRegionIP(self, cxy, cz, alpha, R_sb, p, n, mu, tau_min, tau_max, ej, v, t_min, t_max, epsilon);
-% catch ME
-%     disp(ME.message);
-%     error('Failed to initialize the feasible region. Check input points.');
-% end
-% 
-% % Plot the initial feasible region
-% figure;
-% hold on;
-% plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'b-', 'LineWidth', 2);
-% plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'bo', 'MarkerFaceColor', 'b');
-% 
-% % Label the vertices
-% for i = 1:size(Yfa, 2)
-%     text(Yfa(1, i), Yfa(2, i), Yfa(3, i), sprintf('P%d', i), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
-% end
-% 
-% xlabel('X');
-% ylabel('Y');
-% zlabel('Z');
-% title('Initial Feasible Region');
-% axis equal;
-% grid on;
-% 
-% % Iterate to update the feasible region and plot each step
-% while true
-%     % I) Compute the edges of Yinner
-%     edges = geometry_computation.computeEdges(Yfa);
-% 
-%     % II) Pick ai based on the edge cutting off the largest fraction of Youter
-%     ai = geometry_computation.pickEdge(edges, Yfa);
-% 
-%     % III) Solve the LP
-%     try
-%         [cxy_opt, f_opt] = geometry_computation.solveLP(ai, cxy, alpha, R_sb, p, n, mu, tau_min, tau_max, ej, v, t_min, t_max);
-%     catch ME
-%         disp(ME.message);
-%         break; % Break if no feasible solution found
-%     end
-% 
-%     % IV) Update the outer approximation Youter
-%     Yfa = geometry_computation.updateOuterApproximation(Yfa, cxy_opt);
-% 
-%     % V) Update the inner approximation Yinner
-%     Yfa = geometry_computation.updateInnerApproximation(Yfa, cxy_opt, f_opt);
-% 
-%     % Plot the updated feasible region
-%     figure;
-%     hold on;
-%     plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'b-', 'LineWidth', 2);
-%     plot3(Yfa(1, :), Yfa(2, :), Yfa(3, :), 'bo', 'MarkerFaceColor', 'b');
-% 
-%     % Label the vertices
-%     for i = 1:size(Yfa, 2)
-%         text(Yfa(1, i), Yfa(2, i), Yfa(3, i), sprintf('P%d', i), 'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'right');
-%     end
-% 
-%     xlabel('X');
-%     ylabel('Y');
-%     zlabel('Z');
-%     title('Updated Feasible Region');
-%     axis equal;
-%     grid on;
-% 
-%     % Check stopping criterion
-%     if area(Yfa) <= epsilon
-%         break;
-%     end
-% end
+
+
 
 %% Moment Calculation
 
 % Define the range of n_leg_friction and n_asc_tension
-n_leg_friction_range = 1:4;
-n_asc_tension_range = 1:4;
+n_leg_friction_range = 1:5;
+n_asc_tension_range = 1:5;
 
 % Initialize the zmp array
 self.zmp = zeros(3, 4*4*4*4*4);
 self.total_moment = zeros(4*4*4*4*4, 3);
 self.total_force = zeros(4*4*4*4*4, 3); % Total force array
+
 
 % Calculation of ZMP
 for n_leg_friction_1 = 1:4
@@ -308,8 +240,18 @@ for n_leg_friction_1 = 1:4
                               self.leg_contact_force_polytope(n_leg_friction_4,:,4);
                               (self.asc_wrench_matrix(1:3,1)*self.asc_tension_space(n_asc_tension,1))';
                               (self.asc_wrench_matrix(1:3,2)*self.asc_tension_space(n_asc_tension,2))'];
-                    for i = 1:6
-                        r = points(i, :);   % Position vector of the point
+
+                    % Add inertia forces due to base acceleration
+                    inertia_forces = self.model.totalmass * self.ddot_p_base; % F = ma
+                    forces = [forces; inertia_forces'; self.com_force.b_norm'];
+
+                    % Calculate moments and forces
+                    for i = 1:8 % Updated to 7 to include inertia forces
+                        if i <= 6
+                            r = points(i, :);   % Position vector of the point
+                        else
+                            r = [0.0, 0.0, 0.0]; % Base center of mass assumed at origin
+                        end
                         F = forces(i, :);   % Force vector at the point
                         M = cross(r, F);    % Moment generated by the force at this point
                         self.total_moment(num_point,:) = self.total_moment(num_point,:) + M; % Sum the moments
@@ -340,19 +282,20 @@ valid_indices = ~isnan(x_zmp) & ~isnan(y_zmp);
 x_zmp = x_zmp(valid_indices);
 y_zmp = y_zmp(valid_indices);
 
-% % Plot using scatter
-% figure;
-% scatter(x_zmp, y_zmp, 'filled');
-% 
-% xlabel('x (ZMP Position)');
-% ylabel('y (ZMP Position)');
-% title('ZMP Positions on the xy-plane');
-% grid on;
-% axis equal;
+% Plot using scatter
+figure;
+scatter(x_zmp, y_zmp, 'filled');
 
-% figure;
+xlabel('x (ZMP Position)');
+ylabel('y (ZMP Position)');
+title('ZMP Positions on the xy-plane');
+grid on;
+axis equal;
+
+figure;
+% self.zmp_polytope = Polyhedron([self.p_base(1), self.p_base(2), 0.0]+self.zmp');
 self.zmp_polytope = Polyhedron(self.zmp');
-% self.zmp_polytope.plot('color', 'gray', 'alpha', 0.5);
+self.zmp_polytope.plot('color', 'gray', 'alpha', 0.5);
 
 
 %% Plotting
