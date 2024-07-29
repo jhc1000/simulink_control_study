@@ -104,6 +104,7 @@ classdef plotting_tools
             plot3([self.p_base(1), self.com_xy_position(1)],[self.p_base(2), self.com_xy_position(2)],[self.p_base(3), self.com_xy_position(3)], '--', 'Color','cyan','LineWidth',3);
             plot3(self.com_xy_position(1),self.com_xy_position(2),self.com_xy_position(3),'.','Color','cyan','Markersize',20);
             
+            plot3(self.com_position_lp(1),self.com_position_lp(2),self.com_position_lp(3),'.','Color','red','Markersize',50);
             hold off
 
             xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');
