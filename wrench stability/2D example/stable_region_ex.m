@@ -15,7 +15,7 @@ self = self.model.init(self);
 self = self.kinematics.init(self);
 self = self.dynamics.init(self);
 
-self.slope = [0.0, deg2rad(10), 0.0];
+self.slope = [0.0, deg2rad(20), 0.0];
 
 self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
@@ -56,7 +56,7 @@ self = self.kinematics.ascender_Jacobians(self, self.dot_q_base, self.dot_p_base
 self = geometry_computation.compute_force_wrench_polytope(self);
 
 %% GRF Estimation
-m = self.model.totalmass;
+m = self.totalmass;
 g = 9.8.*math_tools.rpyToRot(self.slope(1), self.slope(2), self.slope(3))*[0; 0; 1];
 self.resultant_force.b = m.*g;
 self.resultant_moment.b = zeros(3,1);
@@ -96,7 +96,7 @@ self = geometry_computation.compute_ascender_wrench_polytope(self);
 %% 2D Region
 % Define the support region of the 4-leg contact area
 
-ai = [1.0;-1.0];
+ai = [1.0;0.0];
 
 % Define parameters for the problem
 % cxy = [0.0;0.0];           % Initial guess for cxy
@@ -105,12 +105,13 @@ cxy = [self.p_base(1);self.p_base(2)];           % Initial guess for cxy
 cz = self.p_base(3);                 % Placeholder for cz (not used in current functions)
 R_sb = eye(3);          % Rotation matrix (identity for simplicity)
 R_gb = math_tools.rpyToRot(self.slope(1), self.slope(2), self.slope(3));
-p = self.p.s_w(:,1:3);
+
+self.num_contact = 4;
+self.bool_contact = [1, 0, 1, 1];
+self.c_bool = logical(self.bool_contact);
+p = self.p.s_w(:,self.c_bool);
 % p = self.p.b_w;
-
-num_contact = 4;
-bool_contact = [1, 1, 1, 1];
-
+disp(p)
 mu = 0.8;               % Friction coefficient
 
 tau_min = -self.model.LF_tau_lim;           % Minimum torque constraint
@@ -156,10 +157,10 @@ end
 u = [m.*g; zeros(3,1)];
 
 % B
-b = [([1;0;0]-mu*[0;0;1]).';
-    ([0;1;0]-mu*[0;0;1]).';
-    -([1;0;0]+mu*[0;0;1]).';
-    -([0;1;0]+mu*[0;0;1]).'];
+b = [([1;0;0]-self.mu*[0;0;1]).';
+    ([0;1;0]-self.mu*[0;0;1]).';
+    -([1;0;0]+self.mu*[0;0;1]).';
+    -([0;1;0]+self.mu*[0;0;1]).'];
 for i=1:width(p)
     B = blkdiag(B,b);
 end
@@ -172,13 +173,13 @@ end
 
 % d
 for i=1:width(p)
-    d_i = [tau_max, tau_min].';
+    d_i = [tau_max, -tau_min].';
     d = vertcat(d, d_i);
 end
 
 % W
 for i=1:width(ej)
-    W_i = [v(:,i).'; v(:,i).'];
+    W_i = [v(:,i).'; -v(:,i).'];
     W = blkdiag(W,W_i);
 end
 
@@ -193,8 +194,8 @@ num_f = size(A2, 2);
 num_t = size(A3, 2);
 
 % Objective function: -ai.' * cxy (maximize ai.' * cxy -> minimize -ai.' * cxy)
-% f_obj = [-ai; zeros(num_f + num_t, 1)];
-f_obj = [-ai; zeros(num_f, 1)];
+% f_obj = [-ai; -ones(num_f + num_t, 1)];
+f_obj = [-ai; -ones(num_f, 1)];
 
 % Constraints: Aeq * x = beq
 % Aeq = [A1, A2, A3];
@@ -212,20 +213,46 @@ beq = u;
 %     d;
 %     w];
 
+% A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2)+size(W,2));
+%     zeros(size(B,1),size(cxy,1)),B,zeros(size(B,1),size(W,2));
+%     zeros(size(W,1),size(cxy,1)),zeros(size(W,1),size(G,2)),W];
+% 
+% b_ineq = [zeros(size(cxy,1),1);
+%     zeros(size(B, 1), 1);
+%     w];
+
 A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
-    zeros(size(B,1),size(cxy,1)),B];
+    zeros(size(B,1),size(cxy,1)),B;
+    zeros(size(G,1),size(cxy,1)),G];
 
 b_ineq = [zeros(size(cxy,1),1);
-    zeros(size(B, 1), 1)];
+    zeros(size(B, 1), 1);
+    d];
+
+
+% A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(G,2));
+%     zeros(size(G,1),size(cxy,1)),G];
+% 
+% b_ineq = [zeros(size(cxy,1),1);
+%     d];
+% 
+% A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
+%     zeros(size(B,1),size(cxy,1)),B];
+% 
+% b_ineq = [zeros(size(cxy,1),1);
+%     zeros(size(B, 1), 1)];
 
 lb = [];
 ub = [];
 
-options = optimoptions('linprog','Algorithm','dual-simplex');
-[x,fval,exitflag,output] = linprog(f_obj,A_ineq,b_ineq,Aeq,beq,lb,ub,options)
+options = optimoptions('linprog','Display','final','Algorithm','dual-simplex','MaxIterations',5e4);
+[x,fval,exitflag,output] = linprog(f_obj,A_ineq,b_ineq,Aeq,beq,lb,ub,options);
 
 self.com_position_lp = [x(1); x(2); 0.0];
-
+disp(x)
+self.grf = x(3:end); 
+disp(self.grf)
+disp(G*self.grf)
 %% Moment Calculation
 
 % Define the range of n_leg_friction and n_asc_tension

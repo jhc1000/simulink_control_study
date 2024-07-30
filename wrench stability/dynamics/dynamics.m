@@ -12,7 +12,7 @@ classdef dynamics
             self.tension.s_ej = zeros(3,2);
             self.moment.s_w = zeros(3,4);
             self.moment.s_ej = zeros(3,2);
-            self.mu = 0.3;
+            self.mu = 0.5;
         end
     end
     methods(Static)

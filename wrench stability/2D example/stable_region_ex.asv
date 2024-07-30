@@ -96,28 +96,28 @@ self = geometry_computation.compute_ascender_wrench_polytope(self);
 %% 2D Region
 % Define the support region of the 4-leg contact area
 
-ai = [-1.0;0.0];
+ai = [1.0;-1.0];
 
 % Define parameters for the problem
-cxy = [0.0;0.0];           % Initial guess for cxy
-cz = 0.0;                 % Placeholder for cz (not used in current functions)
-% cxy = [self.p_base(1);self.p_base(2)];           % Initial guess for cxy
-% cz = self.p_base(3);                 % Placeholder for cz (not used in current functions)
+% cxy = [0.0;0.0];           % Initial guess for cxy
+% cz = 0.0;                 % Placeholder for cz (not used in current functions)
+cxy = [self.p_base(1);self.p_base(2)];           % Initial guess for cxy
+cz = self.p_base(3);                 % Placeholder for cz (not used in current functions)
 R_sb = eye(3);          % Rotation matrix (identity for simplicity)
 R_gb = math_tools.rpyToRot(self.slope(1), self.slope(2), self.slope(3));
-% p = self.p.s_w;
-p = self.p.b_w;
 
-num_contact = 4;
-bool_contact = [1, 1, 1, 1];
+self.num_contact = 4;
+self.bool_contact = [1, 1, 1, 1];
+p = self.p.s_w(:,1:3);
+% p = self.p.b_w;
 
 mu = 0.8;               % Friction coefficient
 
 tau_min = -self.model.LF_tau_lim;           % Minimum torque constraint
 tau_max = self.model.LF_tau_lim;            % Maximum torque constraint
 
-% ej = self.p.s_ej;
-ej = self.p.b_ej;
+ej = self.p.s_ej;
+% ej = self.p.b_ej;
 v = [(self.v.b_ej_anc(:,1))/norm(self.v.b_ej_anc(:,1)), (self.v.b_ej_anc(:,2))/norm(self.v.b_ej_anc(:,2))];
 
 t_min = self.ASC_L_tension_lim(1);             % Minimum force constraint
@@ -138,7 +138,7 @@ d = [];
 w = [];
 
 % A1
-A1 = [zeros(3,2); -m.*cross(repmat(g, 1, 2), P.')];
+A1 = [zeros(3,2); m.*cross(repmat(g, 1, 2), P.')];
 
 % A2
 for i=1:width(p)
@@ -153,7 +153,7 @@ for i=1:width(ej)
 end
 
 % u
-u = [-m.*g; zeros(3,1)];
+u = [m.*g; zeros(3,1)];
 
 % B
 b = [([1;0;0]-mu*[0;0;1]).';
@@ -172,7 +172,7 @@ end
 
 % d
 for i=1:width(p)
-    d_i = [tau_max, tau_min].';
+    d_i = [tau_max, -tau_min].';
     d = vertcat(d, d_i);
 end
 
@@ -184,7 +184,7 @@ end
 
 % w
 for i=1:width(ej)
-    w_i = [t_max, t_min].';
+    w_i = [t_max, -t_min].';
     w = vertcat(w, w_i);
 end
 
@@ -212,49 +212,29 @@ beq = u;
 %     d;
 %     w];
 
-A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
-    zeros(size(B,1),size(cxy,1)),B;
+
+A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(G,2));
     zeros(size(G,1),size(cxy,1)),G];
 
 b_ineq = [zeros(size(cxy,1),1);
-    zeros(size(B, 1), 1);
     d];
 
-% 관심 있는 범위 설정 (예: -10에서 10)
-f1_range = -100:0.5:100;
-f2_range = -100:0.5:100;
-f3_range = 0:0.5:100;
+% A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
+%     zeros(size(B,1),size(cxy,1)),B];
+% 
+% b_ineq = [zeros(size(cxy,1),1);
+%     zeros(size(B, 1), 1)];
 
-% 그리드 생성
-[F1, F2, F3] = ndgrid(f1_range, f2_range, f3_range);
-num_points = numel(F1);
-F = [F1(:), F2(:), F3(:)]'; % 3 x num_points 크기의 행렬
+lb = [];
+ub = [];
 
-B1 = B(1:4,1:3);
-G1 = G(1:6,1:3);
-d1 = d(1:6);
+options = optimoptions('linprog','Display','final','Algorithm','interior-point');
+[x,fval,exitflag,output] = linprog(f_obj,A_ineq,b_ineq,Aeq,beq,lb,ub,options);
 
-% 부등식 평가
-valid_points = [];
-for i = 1:num_points
-    f = F(:, i);
-    if all(B1 * f <= zeros(4,1)) && all(G1 * f <= d1)
-        valid_points = [valid_points, f];
-    end
-end
-
-% 플롯
-figure;
-hold on;
-scatter3(valid_points(1, :), valid_points(2, :), valid_points(3, :), 'bo');
-title('Points satisfying B \cdot f \leq 0 and G \cdot f \leq 0');
-xlabel('f1');
-ylabel('f2');
-zlabel('f3');
-grid on;
-hold off;
-
-
+self.com_position_lp = [x(1); x(2); 0.0];
+disp(x)
+grf = x(3:end); 
+disp(grf)
 %% Moment Calculation
 
 % Define the range of n_leg_friction and n_asc_tension

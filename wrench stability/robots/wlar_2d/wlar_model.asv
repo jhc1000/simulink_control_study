@@ -1,6 +1,6 @@
 classdef wlar_model
     properties
-        totalmass = 80;
+        totalmass = 70;
         % torque limits for each leg 
         % HR = Hip roll
         % HP = Hip pitch
@@ -15,7 +15,7 @@ classdef wlar_model
     end
     methods
         function self = init(~, self)
-            self.totalmass = 75.0;
+            self.totalmass = 80.0;
             % torque limits for each leg 
             % HR = Hip roll
             % HP = Hip pitch
