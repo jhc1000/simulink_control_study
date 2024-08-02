@@ -97,19 +97,27 @@ classdef plotting_tools
                 P2.plot('color', 'red', 'alpha', 0.3);
             end
 
-            P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.0005.*self.ascender_force_polytope);
+            P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.00025.*self.ascender_force_polytope);
             P3.plot('color', 'magenta', 'alpha', 0.3);
 
             self.zmp_polytope.plot('color', 'gray', 'alpha', 0.3);
             plot3([self.p_base(1), self.com_xy_position(1)],[self.p_base(2), self.com_xy_position(2)],[self.p_base(3), self.com_xy_position(3)], '--', 'Color','cyan','LineWidth',3);
             plot3(self.com_xy_position(1),self.com_xy_position(2),self.com_xy_position(3),'.','Color','cyan','Markersize',20);
             
-            plot3(self.com_position_lp(1),self.com_position_lp(2),self.com_position_lp(3),'.','Color','red','Markersize',50);
+            % plot3(self.com_position_lp(1),self.com_position_lp(2),self.com_position_lp(3),'.','Color','red','Markersize',50);
+            plot3(self.com_position_lp_results(1,:),self.com_position_lp_results(2,:),self.com_position_lp_results(3,:),'.','Color','red','Markersize',20);
+
+            P0 = Polyhedron(self.com_position_lp_results');
+            P0.plot('color', 'red', 'alpha', 0.3);
             p = self.p.s_w(:,self.c_bool);
-            
             for i=1:width(p)
                 % plot3([p(1,i),p(1,i)+0.001*self.grf((3*i-2))],[p(2,i),p(2,i)+0.001*self.grf((3*i-1))],[p(3,i),p(3,i)+0.001*self.grf((3*i))],'-','Color','k','LineWidth',3);
                 quiver3(p(1,i),p(2,i),p(3,i),0.001*self.grf((3*i-2)),0.001*self.grf((3*i-1)),0.001*self.grf((3*i)),'-','Color','r','LineWidth',5);
+            end
+            
+            ej = self.p.s_ej;
+            for i=1:width(ej)
+                quiver3(ej(1,i),ej(2,i),ej(3,i),0.1*self.tension_lp(i)*self.v_norm(1,i),0.1*self.tension_lp(i)*self.v_norm(2,i),0.1*self.tension_lp(i)*self.v_norm(3,i),'--','Color','k','LineWidth',5);
             end
             
             hold off
