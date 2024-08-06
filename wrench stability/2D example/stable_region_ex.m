@@ -106,7 +106,7 @@ cz = self.p_base(3);                 % Placeholder for cz (not used in current f
 R_sb = eye(3);          % Rotation matrix (identity for simplicity)
 R_gb = math_tools.rpyToRot(self.slope(1), self.slope(2), self.slope(3));
 
-self.bool_contact = [1, 1, 1, 1];
+self.bool_contact = [0, 1, 1, 1];
 self.num_contact = sum(self.bool_contact);
 self.c_bool = logical(self.bool_contact);
 p = self.p.s_w(:,self.c_bool);
