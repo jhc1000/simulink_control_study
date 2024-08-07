@@ -320,6 +320,65 @@ classdef wlar_kinematics
             self.ik_angle = angles;
             self.ik_angle_degree = angles_degree;
         end
+        function self = wheelleg_ik_numeric(self,target_leg_positions,dx,dy,dz,roll,pitch,yaw)
+            import math_tools.*
+            % 수치해석적 역기구학 계산 (Newton-Raphson 방법)
+            target_leg_positions = self.p.b_w;
+            disp("target_leg_positions:");
+            disp(target_leg_positions);
+
+            self.tol = 1e-3;  % 수렴 허용 오차
+            self.max_iter = 10000;  % 최대 반복 횟수
+            self.step_size = 0.0001;  % 스텝 사이즈
+
+            q.hr_initial = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+            q.hp_initial = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
+            q.k_initial = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
+
+            self.q.hr = q.hr_initial;
+            self.q.hp = q.hp_initial;
+            self.q.k = q.k_initial;
+
+            for iter = 1:self.max_iter
+                % Forward Kinematics 계산
+                self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
+                disp("self.p.b_w:");
+                disp(self.p.b_w);
+                % 현재 발의 위치와 목표 위치의 오차 계산
+                error = self.p.b_w - target_leg_positions;
+                error_norm = norm(error);
+                disp("error:");
+                disp(error)
+                % 수렴 조건 확인
+                if error_norm < self.tol
+                    fprintf('수렴 완료: %d번째 반복에서 오차 = %.6f\n', iter, error_norm);
+                    break;
+                end
+
+
+                % Jacobians 계산
+                self = self.kinematics.Jacobians(self, self.dot_q_base, self.dot_p_base);
+
+                % 각 다리마다 Jacobian을 사용하여 오차에 대한 관절 각도 변화 계산
+                delta_theta = zeros(3, 4);  % 각도 변화 초기화
+                for i = 1:4
+                    J = self.Jacobian_b(1:3,:,i);  % 3x3 Jacobian (각 다리의 위치에 대한 것만 사용)
+                    delta_theta(:,i) = pinv(J) * error(:,i);  % Jacobian의 유사 역행렬로 각도 변화 계산
+                end
+
+                % 관절 각도 업데이트
+                self.q.hr = self.q.hr - self.step_size * delta_theta(1,:)';
+                self.q.hp = self.q.hp - self.step_size * delta_theta(2,:)';
+                self.q.k = self.q.k - self.step_size * delta_theta(3,:)';
+                
+                % 오차 출력
+                fprintf('반복 %d: 오차 = %.6f\n', iter, error_norm);
+            end
+            
+            if iter == self.max_iter
+                fprintf('최대 반복 횟수 도달: 오차 = %.6f\n', error_norm);
+            end
+        end
     end
 end
 

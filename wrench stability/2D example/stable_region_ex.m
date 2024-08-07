@@ -27,14 +27,14 @@ self.p_base = [-2.0; -1.972; 0.50322];
 % self.p_base = [-4.0; -2.5; 0.50322];
 % self.p_base = [-2.0; -1.0; 0.50322];
 
-% self.base_movement = [-0.0; 0.0; 0.0];
-self.base_movement = [-0.14703; -0.10508; 0.0]; % lf
+self.base_movement = [-0.0; 0.0; 0.0];
+% self.base_movement = [-0.14703; -0.10508; 0.0]; % lf
 % self.base_movement = [-0.17997; 0.03313; 0.0];  % rf
 % self.base_movement = [0.08638; -0.10347; 0.0];  % lr
 % self.base_movement = [0.07631; 0.08888; 0.0];  % rr
 % self.base_movement = [0.09299; 0.15955; 0.0];  % rr
 
-self.bool_contact = [0,1,1,1];
+self.bool_contact = [1,1,1,1];
 
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
@@ -52,7 +52,7 @@ self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
 self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
 self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
 % self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
-% self.q.k = [deg2rad(45); deg2rad(45); deg2rad(-45); deg2rad(-45)];
+% self.q.k = [deg2rad(75); deg2rad(75); deg2rad(-75); deg2rad(-75)];
 % self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
 % self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
 self.q.asc = zeros(2,1);
@@ -79,6 +79,9 @@ self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_bas
 
 self = self.kinematics.Jacobians(self, self.dot_q_base, self.dot_p_base);
 self = self.kinematics.ascender_Jacobians(self, self.dot_q_base, self.dot_p_base);
+
+% self = self.kinematics.wheelleg_ik_numeric(self,self.p.b_w,self.base_movement(1),self.base_movement(2),self.base_movement(3),self.q_base(1),self.q_base(2),self.q_base(3));
+% disp([self.q.hr, self.q.hp, self.q.k]');
 
 %% Force Wrench Polytope
 self = geometry_computation.compute_force_wrench_polytope(self);
