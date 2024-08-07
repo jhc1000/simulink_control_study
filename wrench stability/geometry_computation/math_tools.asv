@@ -32,17 +32,13 @@ classdef math_tools
 
         end
         function T = T_m(dx,dy,dz,roll,pitch,yaw)
-          
             p = [dx, dy, dz]';
-            R = math_tools.rpyToRot(roll, pitch, yaw);
-            T = math_tools.homogeneous_matrix(R, p);
+            R = rpyToRot(roll, pitch, yaw);
+            T = homogeneous_matrix(R, p);
         end
         function T_inv = homog_transform_inverse(T)
-            R_inv = T(1:3,1:3)';
-            p_inv = -T(1:3,1:3)'*T(1:3,4);
-            T_inv = [R_inv p_inv;
-                     [0 0 0]  1];
-        end
+            T_inv = zeros(4);
+            T_inv[1:3,1:3] = T[1:3,1:3]
         function Ad = adjoint_matrix(R, p)
             Ad = [R zeros(3,3);
                   math_tools.skew(p)*R  R];

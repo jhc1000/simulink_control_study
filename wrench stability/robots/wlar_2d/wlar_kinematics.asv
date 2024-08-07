@@ -8,7 +8,7 @@ classdef wlar_kinematics
         y_b2hr = 0.283;   % b2hr
         y_hr2hp = 0.058;  % hr2hp
         y_hp2k = 0.0;   % hp2k
-        y_k2w = 0.0;    % k2w
+        y_k2w = 0.057;    % k2w
         % n1 = [1; 1; -1; -1];
         % n2 = [1; -1; 1; -1];
         % 
@@ -25,8 +25,8 @@ classdef wlar_kinematics
             self.z_k2w = 0.3189;    % k2w
             self.y_b2hr = 0.283;   % b2hr
             self.y_hr2hp = 0.058;  % hr2hp
-            self.y_hp2k = 0.0;   % hp2k
-            self.y_k2w = 0.0;    % k2w
+            self.y_hp2k = -0.0;   % hp2k
+            self.y_k2w = 0.057;    % k2w 0.057
             self.n1 = [1; 1; -1; -1];
             self.n2 = [1; -1; 1; -1];
     
@@ -72,7 +72,7 @@ classdef wlar_kinematics
                 self.p.b_hr(:,i) = [self.n1(i)*(self.x_b2hr); self.n2(i)*(self.y_b2hr); (self.z_b2hr)];
                 self.p.hr_hp(:,i) = [0.0; self.n2(i)*(self.y_hr2hp); -(self.z_hr2hp)];
                 self.p.hp_k(:,i) = [0.0; self.n2(i)*(self.y_hp2k); -(self.z_hp2k)];
-                self.p.k_w(:,i) = [0.0; self.n2(i)*(self.y_k2w); -(self.z_hp2k)];
+                self.p.k_w(:,i) = [0.0; self.n2(i)*(-self.y_k2w); -(self.z_hp2k)];
 
                 self.T.b_hr(:,:,i) = math_tools.homogeneous_matrix(self.R.b_hr(:,:,i),self.p.b_hr(:,i));
                 self.T.hr_hp(:,:,i) = math_tools.homogeneous_matrix(self.R.hr_hp(:,:,i),self.p.hr_hp(:,i));
@@ -183,19 +183,141 @@ classdef wlar_kinematics
             self.asc_Jacobian_b(:,:) = [self.J.b_asc_q(:,:,1) self.J.b_asc_q(:,:,2)];
             % self.asc_Jacobian_s(:,:) = [self.J.s_asc_q(:,:,1) self.J.s_asc_q(:,:,2)];
         end
-        function self = get_local_positions(self)        
-            leg_position = self.p.b_w; 
-            T_m_mat = T
-
+        function positions = get_local_positions(self,world_pos,dx,dy,dz,roll,pitch,yaw) 
             import math_tools.*
+            leg_positions = vstack(world_pos, ones(1,4)); 
+            T_m_mat = T_m(dx,dy,dz,roll,pitch,yaw);
+            T_m_mat_inv = homog_transform_inverse(T_m_mat);
 
-            self.R.s_b = math_tools.rpyToRot(q_base(1), q_base(2), q_base(3));
-            self.T.s_b = math_tools.homogeneous_matrix(self.R.g_b, p_base);
+            % base to hr Pos Ver.2
+            b_pos_FL = [self.x_b2hr, self.y_b2hr, self.z_b2hr, 1]';
+            b_pos_FR = [self.x_b2hr, -self.y_b2hr, self.z_b2hr, 1]';
+            b_pos_RL = [-self.x_b2hr, self.y_b2hr, self.z_b2hr, 1]';
+            b_pos_RR = [-self.x_b2hr, -self.y_b2hr, self.z_b2hr, 1]';
+
+            % base to end-effector
+            b_end_FL = T_m_mat_inv*leg_positions(:,1);
+            b_end_FR = T_m_mat_inv*leg_positions(:,2);
+            b_end_RL = T_m_mat_inv*leg_positions(:,3);
+            b_end_RR = T_m_mat_inv*leg_positions(:,4);
+
+            % hr to end-effector
+            hr_pos_end_FL = b_end_FL - b_pos_FL;
+            hr_pos_end_FR = b_end_FR - b_pos_FR;
+            hr_pos_end_RL = b_end_RL - b_pos_RL;
+            hr_pos_end_RR = b_end_RR - b_pos_RR;
+
+            positions = [hr_pos_end_FL(1:3),hr_pos_end_FR(1:3),hr_pos_end_RL(1:3),hr_pos_end_RR(1:3)];
+
 
         end
-        function self = wheelleg_ik(self, base_movement, leg_position)
-            leg_position = self.p.s_w;
+        function self = wheelleg_ik(self,leg_positions,dx,dy,dz,roll,pitch,yaw)
+            import math_tools.*
+            positions = self.kinematics.get_local_positions(self,leg_positions,dx,dy,dz,roll,pitch,yaw);
+            disp("local position :"+string(positions));
 
+            sym_1 = [1, 1, -1, -1];
+            sym_2 = [1, -1, 1, -1];
+            sym_3 = [-1, 1, 1, -1];
+            sym_4 = [1, -1, -1, 1];
+
+            hr_beta = zeros(4,1);
+            hr_alpha = zeros(4,1);
+            q_hr = zeros(4,1);
+    
+            rot_qhr = zeros(3, 3, 4);
+            k = zeros(4,1);
+            q_k = zeros(4,1);
+            hp_phi = zeros(4,1);
+            hp_psi = zeros(4,1);
+            q_hp = zeros(4,1);
+
+            related_ee_pos = zeros(3,4);
+
+            for i =1:4
+                x = positions(1,i);
+                y = positions(2,i);
+                z = positions(3,i);
+
+                kl = (self.y_hr2hp + self.y_hp2k - self.y_k2w) / sqrt(x^2 + y^2);
+                hr_beta(i) = acos(kl);
+
+                if i == 1
+                    hr_alpha(i) = atan2((x), (y));  % -pi ~ pi y is under
+                    q_hr(i) = (hr_beta(i) - hr_alpha(i));
+
+                elseif i == 2
+                    hr_alpha(i) = atan2((x), (-y));  % -pi ~ pi y is under
+                    q_hr(i) = -(hr_beta(i) - hr_alpha(i));
+
+                elseif i == 3
+                    hr_alpha(i) = atan2((-x), (y));  % -pi ~ pi y is under
+                    q_hr(i) = -(hr_beta(i) - hr_alpha(i));
+
+                elseif i == 4
+                    hr_alpha(i) = atan2((-x), (-y)); % -pi ~ pi y is under
+                    q_hr(i) = (hr_beta(i) - hr_alpha(i));
+                end
+                
+                if i == 0
+                    if q_hr(i) > pi/2
+                        q_hr(i) = q_hr(i) - pi;
+                    elseif q_hr(i) < -pi/2
+                        q_hr(i) = q_hr(i) + pi;
+                    end
+                elseif i == 1
+                    if q_hr(i) > pi/2
+                        q_hr(i) = q_hr(i) - pi;
+                    elseif q_hr(i) < -pi/2
+                        q_hr(i) = q_hr(i) + pi;
+                    end
+                elseif i == 2
+                    if q_hr(i) > pi/2
+                        q_hr(i) =q_hr(i) - pi;
+                    elseif q_hr(i) < -pi/2
+                        q_hr(i) = q_hr(i)+ pi;
+                    end
+                elseif i == 3
+                    if q_hr(i) > pi/2
+                        q_hr(i) = q_hr(i) - pi;
+                    elseif q_hr(i) < -pi/2
+                        q_hr(i) = q_hr(i) + pi;
+                    end
+                end
+
+                rot_qhr(:, :, i) = [cos(q_hr(i)), -sin(q_hr(i)), 0.0;
+                                    sin(q_hr(i)), cos(q_hr(i)), 0.0;
+                                    0.0, 0.0, 1.0];
+
+                related_ee_pos(:,i) = rot_qhr(:, :, i)'* positions(:,i);
+
+
+                x1 = related_ee_pos(1,i);
+                y1 = related_ee_pos(2,i);
+                z1 = related_ee_pos(3,i);
+                
+                k(i) = sqrt(x1^2 + (z1 + self.z_hr2hp)^2);
+            
+                q_k(i) = -sym_4(i) * (acos((k(i)^2 - self.z_hp2k^2 - self.z_k2w^2) / (2 * self.z_hp2k * self.z_k2w)));
+                
+                hp_phi(i) = sym_2(i) * ((atan2(x1, (z1 + self.z_hr2hp))) - pi);
+                hp_psi(i) = atan2(self.z_k2w * sin(q_k(i)), self.z_hp2k + self.z_k2w * cos(q_k(i)));
+
+                q_hp(i) = (hp_phi(i) + hp_psi(i));
+    
+                if q_hp(i) > pi
+                    q_hp(i) = q_hp(i) - pi*2;
+                elseif q_hp(i) < -pi
+                    q_hp(i) = q_hp(i) + pi*2;
+                end
+
+            end
+
+            angles = [q_hr, sym_2q_hp, q_k];
+            angles_degree = [rad2deg(q_hr), rad2deg(q_hp), rad2deg(q_k)];
+            
+            self.ik_angle = angles;
+            self.ik_angle_degree = angles_degree;
         end
     end
 end

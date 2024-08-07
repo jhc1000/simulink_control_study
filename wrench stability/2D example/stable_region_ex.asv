@@ -15,7 +15,7 @@ self = self.model.init(self);
 self = self.kinematics.init(self);
 self = self.dynamics.init(self);
 
-self.slope = [0.0, deg2rad(25), 0.0];
+self.slope = [0.0, deg2rad(0), 0.0];
 
 self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
@@ -27,14 +27,13 @@ self.p_base = [-2.0; -1.972; 0.50322];
 % self.p_base = [-4.0; -2.5; 0.50322];
 % self.p_base = [-2.0; -1.0; 0.50322];
 
-% self.base_movement = [-0.0; 0.0; 0.0];
-self.base_movement = [-0.14703; -0.10508; 0.0]; % lf
+self.base_movement = [-0.0; 0.0; 0.0];
+% self.base_movement = [-0.14703; -0.10508; 0.0]; % lf
 % self.base_movement = [-0.17997; 0.03313; 0.0];  % rf
-% self.base_movement = [0.08638; -0.10347; 0.0];  % lr
-% self.base_movement = [0.07631; 0.08888; 0.0];  % rr
-% self.base_movement = [0.09299; 0.15955; 0.0];  % rr
+% self.base_movement = [-0.08638; 0.10347; 0.0];  % lr
+% self.base_movement = [-0.17997; 0.03313; 0.0];  % rr
 
-self.bool_contact = [0,1,1,1];
+self.bool_contact = [1,1,0,1];
 
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
