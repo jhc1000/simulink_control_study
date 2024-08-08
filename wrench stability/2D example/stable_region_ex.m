@@ -22,14 +22,15 @@ self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
 
 self.q_base = [0.0; deg2rad(0); 0.0];
 % self.p_base = [-2.0; -1.972; 0.50322];
-self.p_base = [-2.0; -1.972; 0.50322];
-% self.p_base = [-2.0; -1.972; 0.24457];
+% self.p_base = [-2.0; -1.972; 0.50322];
+self.p_base = [-2.0; -1.972; 0.38545];
 % self.p_base = [-1.0; -3.0; 0.50322];
 % self.p_base = [-4.0; -2.5; 0.50322];
 % self.p_base = [-2.0; -1.0; 0.50322];
 
-% self.base_movement = [-0.0; 0.0; 0.0];
-self.base_movement = [-0.11703; -0.07508; 0.0]; % lf
+self.base_movement = [-0.0; 0.0; 0.0];
+% % self.base_movement = [-0.25703; -0.11508; 0.0]; % lf
+self.base_movement = [-0.27; -0.15; 0.0]; % lf2
 % self.base_movement = [-0.17997; 0.03313; 0.0];  % rf
 % self.base_movement = [0.08638; -0.10347; 0.0];  % lr
 % self.base_movement = [0.07631; 0.08888; 0.0];  % rr
@@ -47,18 +48,16 @@ self.ddot_p_base = [0.0; 0.0; 0.0];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
-self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+% self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
 % self.q.hp = [deg2rad(-54.877566198798185); deg2rad(-54.877566198798185); deg2rad(54.877566198798185); deg2rad(54.877566198798185)];
 % self.q.k = [deg2rad(81.82706571003209); deg2rad(81.82706571003209); deg2rad(-81.82706571003209); deg2rad(-81.82706571003209)];
-self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
-self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
+% self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
+% self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
 % self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
 % self.q.k = [deg2rad(75); deg2rad(75); deg2rad(-75); deg2rad(-75)];
-% self.q.hp = [deg2rad(-90); deg2rad(-90); deg2rad(90); deg2rad(90)];
-% self.q.k = [deg2rad(90); deg2rad(90); deg2rad(-90); deg2rad(-90)];
-% self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
-% self.q.hp = [deg2rad(-110); deg2rad(-110); deg2rad(110); deg2rad(110)];
-% self.q.k = [deg2rad(120); deg2rad(120); deg2rad(-120); deg2rad(-120)];
+self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
+self.q.hp = [deg2rad(-80); deg2rad(-80); deg2rad(80); deg2rad(80)];
+self.q.k = [deg2rad(100); deg2rad(100); deg2rad(-100); deg2rad(-100)];
 self.q.asc = zeros(2,1);
 
 
