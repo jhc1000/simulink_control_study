@@ -352,15 +352,20 @@ end
 plotting_tools.plot_robot_space(self);
 
 %% ROS2
+disp("Ros2 node start");
 setenv("ROS_DOMAIN_ID","13")
 StableRegionNode = ros2node("/stable_region",13);
 
 swpPub = ros2publisher(StableRegionNode,'/pose_swp','geometry_msgs/PoseStamped');
 swpPubmsg = ros2message(swpPub);
+swpolytopePub = ros2publisher(StableRegionNode,'/polytope_swp','geometry_msgs/PolygonStamped');
+swpolytopePubmsg = ros2message(swpolytopePub);
 pause(3); %wait for some time to register publisher on the network
 % wheelegJointSub = ros2subscriber(StableRegionNode,'/wheelleg_joint_state_desired');
 
 timerHandles.swpPub = swpPub;
 timerHandles.swpPubmsg = swpPubmsg;
+timerHandles.swpolytopePub = swpolytopePub;
+timerHandles.swpolytopePubmsg = swpolytopePubmsg;
 
 simTimer = ExampleHelperROSTimer(0.1, {@SWPtimer,self,timerHandles});

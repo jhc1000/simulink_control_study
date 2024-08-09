@@ -1,12 +1,24 @@
-function SWPtimer(~, ~, handles)
+function SWPtimer(~, ~, self, handles)
     
     % Update the pose message values
     if isvalid(handles.swpPub)
-        handles.swpPubmsg.pose.position.x = 0.1;
-        handles.swpPubmsg.pose.position.y = self.p_base(2;
-        handles.swpPubmsg.pose.position.z = self.p_base(3);
+        handles.swpPubmsg.pose.position.x = self.base_movement(1);
+        handles.swpPubmsg.pose.position.y = self.base_movement(2);
+        handles.swpPubmsg.pose.position.z = self.base_movement(3);
     
         % Publish the scan and pose messages
         send(handles.swpPub,handles.swpPubmsg);
+    end
+
+    if isvalid(handles.swpolytopePub)
+        for i = 1:width(self.com_position_lp_results)
+            handles.tempmsg.X = self.com_position_lp_results(1,:);
+            handles.tempmsg.Y = self.com_position_lp_results(2,:);
+            handles.tempmsg.Z = self.com_position_lp_results(3,:);
+            handles.swpPubmsg.polygon.points(i) = handles.tempmsg;
+        end
+    
+        % Publish the scan and pose messages
+        send(handles.swpolytopePub,handles.swpolytopePubmsg);
     end
 end
