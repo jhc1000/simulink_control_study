@@ -100,7 +100,7 @@ classdef plotting_tools
             P3 = Polyhedron(((self.p.s_ej(:,1)+self.p.s_ej(:,2))./2).' + 0.00025.*self.ascender_force_polytope);
             P3.plot('color', 'magenta', 'alpha', 0.3);
 
-            self.zmp_polytope.plot('color', 'gray', 'alpha', 0.3);
+            % self.zmp_polytope.plot('color', 'gray', 'alpha', 0.3);
             plot3([self.p_base(1)+0.115, self.com_xy_position(1)],[self.p_base(2)+0.004, self.com_xy_position(2)],[self.p_base(3), self.com_xy_position(3)], '--', 'Color','cyan','LineWidth',3);
             plot3(self.com_xy_position(1),self.com_xy_position(2),self.com_xy_position(3),'.','Color','cyan','Markersize',20);
             

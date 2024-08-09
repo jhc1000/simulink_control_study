@@ -1,0 +1,12 @@
+function SWPtimer(~, ~, handles)
+    
+    % Update the pose message values
+    if isvalid(handles.swpPub)
+        handles.swpPubmsg.pose.position.x = 0.1;
+        handles.swpPubmsg.pose.position.y = self.p_base(2;
+        handles.swpPubmsg.pose.position.z = self.p_base(3);
+    
+        % Publish the scan and pose messages
+        send(handles.swpPub,handles.swpPubmsg);
+    end
+end
