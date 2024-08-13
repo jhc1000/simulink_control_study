@@ -175,6 +175,9 @@ ai_values = [1,0; sqrt(1/2),sqrt(1/2); 0,1; -sqrt(1/2),sqrt(1/2); -1,0; -sqrt(1/
 com_position_lp_results = zeros(3, length(ai_values));
 grf_results = cell(1, length(ai_values));
 
+% 옵션 설정: 출력 안 함
+options = optimoptions('linprog', 'Display', 'none');
+
 % Loop over each ai value
 for k = 1:size(ai_values, 1)
     ai = ai_values(k, :)';
@@ -184,7 +187,7 @@ for k = 1:size(ai_values, 1)
     f_obj = [-ai; -ones(num_f, 1); ones(num_t,1)];
 
     % Solve the linear program
-    [x, fval, exitflag, output] = linprog(f_obj, A_ineq, b_ineq, Aeq, beq, lb, ub);
+    [x, fval, exitflag, output] = linprog(f_obj, A_ineq, b_ineq, Aeq, beq, lb, ub, options);
 
     % Store the resulting com_position_lp and grf
     self.com_position_lp = [x(1); x(2); 0.0];
