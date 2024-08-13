@@ -1,0 +1,16 @@
+function robot_position_callback(message)
+global current_robot_position
+global self
+
+current_robot_position = [message.pose.position.x;message.pose.position.y;message.pose.position.z];
+% disp(current_robot_position);
+
+self.p_base = current_robot_position;
+
+
+self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
+self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_base);
+
+self.bool_contact = [0,1,1,1];
+end
+

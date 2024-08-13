@@ -2,6 +2,7 @@ close all;
 clear all;
 clc;
 
+global self
 % 전체 경로 추가
 context();
 
@@ -28,7 +29,7 @@ self.p_base = [-2.0; -1.972; 0.50322];
 % self.p_base = [-4.0; -2.5; 0.50322];
 % self.p_base = [-2.0; -1.0; 0.50322];
 
-self.base_movement = [-0.0; 0.0; 0.0];
+% self.base_movement = [-0.0; 0.0; 0.0];
 self.base_movement = [-0.25703; -0.11508; 0.0]; % lf
 % self.base_movement = [-0.27; -0.15; 0.0]; % lf2
 % self.base_movement = [-0.17997; 0.03313; 0.0];  % rf
@@ -309,7 +310,7 @@ ub = [];
 
 
 % Define different values for ai
-ai_values = [1,0; -1,0; 0,1; 0,-1; 1,1; 1,-1; -1,1; -1,-1];
+ai_values = [1,0; sqrt(1/2),sqrt(1/2); 0,1; -sqrt(1/2),sqrt(1/2); -1,0; -sqrt(1/2),-sqrt(1/2); 0,-1; sqrt(1/2),-sqrt(1/2)];
 
 % Initialize arrays to store the results
 com_position_lp_results = zeros(3, length(ai_values));
@@ -354,18 +355,21 @@ plotting_tools.plot_robot_space(self);
 %% ROS2
 disp("Ros2 node start");
 setenv("ROS_DOMAIN_ID","13")
-StableRegionNode = ros2node("/stable_region",13);
+self.node = ros2node("/stable_region",13);
 
-swpPub = ros2publisher(StableRegionNode,'/pose_swp','geometry_msgs/PoseStamped');
+swpPub = ros2publisher(self.node,'/pose_swp','geometry_msgs/PoseStamped');
 swpPubmsg = ros2message(swpPub);
-swpolytopePub = ros2publisher(StableRegionNode,'/polytope_swp','geometry_msgs/PolygonStamped');
+swpolytopePub = ros2publisher(self.node,'/polytope_swp','geometry_msgs/PolygonStamped');
 swpolytopePubmsg = ros2message(swpolytopePub);
 pause(3); %wait for some time to register publisher on the network
-% wheelegJointSub = ros2subscriber(StableRegionNode,'/wheelleg_joint_state_desired');
+wheelegJointSub = ros2subscriber(self.node,'/wheelleg_joint_state_desired',@wheelleg_joint_state_callback);
+RobotPositionSub = ros2subscriber(self.node,'/robot_position',@robot_position_callback);
+global joint_state
+global current_robot_position
 
 timerHandles.swpPub = swpPub;
 timerHandles.swpPubmsg = swpPubmsg;
 timerHandles.swpolytopePub = swpolytopePub;
 timerHandles.swpolytopePubmsg = swpolytopePubmsg;
 
-simTimer = ExampleHelperROSTimer(0.1, {@SWPtimer,self,timerHandles});
+simTimer = ExampleHelperROSTimer(0.01, {@SWPtimer,timerHandles});

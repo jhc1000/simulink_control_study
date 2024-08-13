@@ -1,7 +1,10 @@
 function SWPtimer(~, ~, self, handles)
+    t = ros2time;
     
     % Update the pose message values
     if isvalid(handles.swpPub)
+        handles.swpPubmsg.header.frame_id = 'com_move';
+        handles.swpPubmsg.header.stamp = t;
         handles.swpPubmsg.pose.position.x = self.base_movement(1);
         handles.swpPubmsg.pose.position.y = self.base_movement(2);
         handles.swpPubmsg.pose.position.z = self.base_movement(3);
@@ -11,11 +14,12 @@ function SWPtimer(~, ~, self, handles)
     end
 
     if isvalid(handles.swpolytopePub)
+        handles.swpolytopePubmsg.header.frame_id = 'odom';
+        handles.swpolytopePubmsg.header.stamp = t;
         for i = 1:width(self.com_position_lp_results)
-            handles.tempmsg.X = self.com_position_lp_results(1,:);
-            handles.tempmsg.Y = self.com_position_lp_results(2,:);
-            handles.tempmsg.Z = self.com_position_lp_results(3,:);
-            handles.swpPubmsg.polygon.points(i) = handles.tempmsg;
+            handles.swpolytopePubmsg.polygon.points(i).x = single(self.com_position_lp_results(1,i));
+            handles.swpolytopePubmsg.polygon.points(i).y = single(self.com_position_lp_results(2,i));
+            handles.swpolytopePubmsg.polygon.points(i).z = single(self.com_position_lp_results(3,i));
         end
     
         % Publish the scan and pose messages
