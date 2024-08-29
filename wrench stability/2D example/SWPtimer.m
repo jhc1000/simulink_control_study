@@ -5,6 +5,7 @@ global self
 self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
 self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_base);
 
+self.slope = [0.0, deg2rad(0), 0.0];
 self.bool_contact = [1,1,1,1];
 
 %% GRF Estimation
@@ -200,6 +201,7 @@ for k = 1:size(ai_values, 1)
     self.grf_results{k} = self.grf;
 
 end
+self.com_position_togo = self.com_vector - (mean(self.com_position_lp_results,2) - self.p_base);
 %% Topic Publish
 t = ros2time(self.node,"now");
 

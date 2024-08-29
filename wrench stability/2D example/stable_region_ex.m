@@ -15,22 +15,22 @@ self = self.model.init(self);
 self = self.kinematics.init(self);
 self = self.dynamics.init(self);
 
-self.slope = [0.0, deg2rad(0), 0.0];
+self.slope = [0.0, deg2rad(20), 0.0];
 
 self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
 
-self.q_base = [0.0; deg2rad(0); 0.0];
+self.q_base = [0.0; deg2rad(-10); 0.0];
 % self.p_base = [-2.0; -1.972; 0.50322];
-% self.p_base = [-2.0; -1.972; 0.50322];
-self.p_base = [-2.0; -1.972; 0.38545];
+self.p_base = [-2.0; -1.972; 0.50322];
+% self.p_base = [-2.0; -1.972; 0.38545];
 % self.p_base = [-1.0; -3.0; 0.50322];
 % self.p_base = [-4.0; -2.5; 0.50322];
 % self.p_base = [-2.0; -1.0; 0.50322];
 
 self.base_movement = [-0.0; 0.0; 0.0];
 % % self.base_movement = [-0.25703; -0.11508; 0.0]; % lf
-self.base_movement = [-0.27; -0.15; 0.0]; % lf2
+% self.base_movement = [-0.27; -0.15; 0.0]; % lf2
 % self.base_movement = [-0.17997; 0.03313; 0.0];  % rf
 % self.base_movement = [0.08638; -0.10347; 0.0];  % lr
 % self.base_movement = [0.07631; 0.08888; 0.0];  % rr
@@ -48,16 +48,16 @@ self.ddot_p_base = [0.0; 0.0; 0.0];
 % self.q.hr = [deg2rad(30); deg2rad(-30); deg2rad(-30); deg2rad(30)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
-% self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
+self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
 % self.q.hp = [deg2rad(-54.877566198798185); deg2rad(-54.877566198798185); deg2rad(54.877566198798185); deg2rad(54.877566198798185)];
 % self.q.k = [deg2rad(81.82706571003209); deg2rad(81.82706571003209); deg2rad(-81.82706571003209); deg2rad(-81.82706571003209)];
-% self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
-% self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
+self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
+self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
 % self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
 % self.q.k = [deg2rad(75); deg2rad(75); deg2rad(-75); deg2rad(-75)];
-self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
-self.q.hp = [deg2rad(-80); deg2rad(-80); deg2rad(80); deg2rad(80)];
-self.q.k = [deg2rad(100); deg2rad(100); deg2rad(-100); deg2rad(-100)];
+% self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
+% self.q.hp = [deg2rad(-80); deg2rad(-80); deg2rad(80); deg2rad(80)];
+% self.q.k = [deg2rad(100); deg2rad(100); deg2rad(-100); deg2rad(-100)];
 self.q.asc = zeros(2,1);
 
 
@@ -250,26 +250,37 @@ num_f = size(A2, 2);
 num_t = size(A3, 2);
 
 % Objective function: -ai.' * cxy (maximize ai.' * cxy -> minimize -ai.' * cxy)
-f_obj = [-ai; -ones(num_f, 1); ones(num_t,1)];
-% f_obj = [-ai; -ones(num_f, 1)];
+% f_obj = [-ai; -ones(num_f, 1); ones(num_t,1)];
+f_obj = [-ai; -ones(num_f, 1)];
 
 % Constraints: Aeq * x = beq
-Aeq = [A1, A2, A3];
-% Aeq = [A1, A2];
+% Aeq = [A1, A2, A3];
+Aeq = [A1, A2];
 beq = u;
 
 % Inequality constraints: A * x <= b
-A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2)+size(W,2));
-    zeros(size(B,1),size(cxy,1)),B,zeros(size(B,1),size(W,2));
-    zeros(size(G,1),size(cxy,1)),G,zeros(size(G,1),size(W,2));
-    zeros(size(W,1),size(cxy,1)),zeros(size(W,1),size(G,2)),W;
-    zeros(size(H,1),size(cxy,1)),zeros(size(H,1),size(G,2)),H];
+% A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2)+size(W,2));
+%     zeros(size(B,1),size(cxy,1)),B,zeros(size(B,1),size(W,2));
+%     zeros(size(G,1),size(cxy,1)),G,zeros(size(G,1),size(W,2));
+%     zeros(size(W,1),size(cxy,1)),zeros(size(W,1),size(G,2)),W;
+%     zeros(size(H,1),size(cxy,1)),zeros(size(H,1),size(G,2)),H];
+% 
+% b_ineq = [zeros(size(cxy,1),1);
+%     zeros(size(B, 1), 1);
+%     d;
+%     w;
+%     h];
 
-b_ineq = [zeros(size(cxy,1),1);
-    zeros(size(B, 1), 1);
-    d;
-    w;
-    h];
+
+% A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2)+size(W,2));
+%     zeros(size(G,1),size(cxy,1)),G,zeros(size(G,1),size(W,2));
+%     zeros(size(W,1),size(cxy,1)),zeros(size(W,1),size(G,2)),W;
+%     zeros(size(H,1),size(cxy,1)),zeros(size(H,1),size(G,2)),H];
+% 
+% b_ineq = [zeros(size(cxy,1),1);
+%     d;
+%     w;
+%     h];
 
 
 % A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2)+size(W,2));
@@ -298,18 +309,18 @@ b_ineq = [zeros(size(cxy,1),1);
 %     zeros(size(B, 1), 1);
 %     d];
 
-% 
+
 % A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(G,2));
 %     zeros(size(G,1),size(cxy,1)),G];
 % 
 % b_ineq = [zeros(size(cxy,1),1);
 %     d];
 
-% A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
-%     zeros(size(B,1),size(cxy,1)),B];
-% 
-% b_ineq = [zeros(size(cxy,1),1);
-%     zeros(size(B, 1), 1)];
+A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
+    zeros(size(B,1),size(cxy,1)),B];
+
+b_ineq = [zeros(size(cxy,1),1);
+    zeros(size(B, 1), 1)];
 
 lb = [];
 ub = [];
@@ -327,8 +338,8 @@ for k = 1:size(ai_values, 1)
     ai = ai_values(k, :)';
     
     % Objective function: -ai.' * cxy (maximize ai.' * cxy -> minimize -ai.' * cxy)
-    % f_obj = [-ai; -ones(num_f, 1)];
-    f_obj = [-ai; -ones(num_f, 1); ones(num_t,1)];
+    f_obj = [-ai; -ones(num_f, 1)];
+    % f_obj = [-ai; -ones(num_f, 1); ones(num_t,1)];
     
     % Solve the linear program
     [x, fval, exitflag, output] = linprog(f_obj, A_ineq, b_ineq, Aeq, beq, lb, ub);

@@ -110,15 +110,15 @@ classdef plotting_tools
             P0 = Polyhedron(self.com_position_lp_results');
             P0.plot('color', 'red', 'alpha', 0.3);
             p = self.p.s_w(:,self.c_bool);
-            for i=1:width(p)
-                % plot3([p(1,i),p(1,i)+0.001*self.grf((3*i-2))],[p(2,i),p(2,i)+0.001*self.grf((3*i-1))],[p(3,i),p(3,i)+0.001*self.grf((3*i))],'-','Color','k','LineWidth',3);
-                quiver3(p(1,i),p(2,i),p(3,i),0.001*self.grf((3*i-2)),0.001*self.grf((3*i-1)),0.001*self.grf((3*i)),'-','Color','r','LineWidth',5);
-            end
+            % for i=1:width(p)
+            %     % plot3([p(1,i),p(1,i)+0.001*self.grf((3*i-2))],[p(2,i),p(2,i)+0.001*self.grf((3*i-1))],[p(3,i),p(3,i)+0.001*self.grf((3*i))],'-','Color','k','LineWidth',3);
+            %     quiver3(p(1,i),p(2,i),p(3,i),0.001*self.grf((3*i-2)),0.001*self.grf((3*i-1)),0.001*self.grf((3*i)),'-','Color','r','LineWidth',5);
+            % end
             
             ej = self.p.s_ej;
-            for i=1:width(ej)
-                quiver3(ej(1,i),ej(2,i),ej(3,i),0.1*self.tension_lp(i)*self.v_norm(1,i),0.1*self.tension_lp(i)*self.v_norm(2,i),0.1*self.tension_lp(i)*self.v_norm(3,i),'--','Color','k','LineWidth',5);
-            end
+            % for i=1:width(ej)
+            %     quiver3(ej(1,i),ej(2,i),ej(3,i),0.1*self.tension_lp(i)*self.v_norm(1,i),0.1*self.tension_lp(i)*self.v_norm(2,i),0.1*self.tension_lp(i)*self.v_norm(3,i),'--','Color','k','LineWidth',5);
+            % end
             
             hold off
 
