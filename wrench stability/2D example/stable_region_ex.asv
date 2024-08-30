@@ -403,13 +403,11 @@ fqp = -robot_pos(1:2); % 목표 위치에서 로봇의 위치
 try
     % quadprog를 이용한 최적화 문제 해결 (Ax <= b)
     x_qp = quadprog(Hqp, fqp, Aqp, bqp);
-    x_qp_full = [x_qp; 0]; % z값 0 추가
+    self.x_qp_full = [x_qp; 0]; % z값 0 추가
 catch
     % 최적해가 없을 경우 (예외 처리)
     x_qp_full = self.p_base;
 end
-
-self.base2move = x_qp_full - self.p_base;
 
 % 결과 출력
 disp('Polytope 내부에서 가장 가까운 점:');

@@ -359,23 +359,30 @@ self.com_position_togo = self.com_vector - (mean(self.com_position_lp_results,2)
 plotting_tools.plot_robot_space(self);
 
 %% ROS2
-disp("Ros2 node start");
+disp("Ros2 node initiating");
 setenv("ROS_DOMAIN_ID","13")
 self.node = ros2node("/stable_region",13);
 
-swpPub = ros2publisher(self.node,'/pose_swp','geometry_msgs/PoseStamped');
+swpPub = ros2publisher(self.node,'/pose_swp','geometry_msgs/PointStamped');
 swpPubmsg = ros2message(swpPub);
+comPub = ros2publisher(self.node,'/robot_com','geometry_msgs/PointStamped');
+comPubmsg = ros2message(comPub);
 swpolytopePub = ros2publisher(self.node,'/polytope_swp','geometry_msgs/PolygonStamped');
 swpolytopePubmsg = ros2message(swpolytopePub);
 pause(3); %wait for some time to register publisher on the network
 wheelegJointSub = ros2subscriber(self.node,'/wheelleg_joint_state_desired',@wheelleg_joint_state_callback);
 RobotPositionSub = ros2subscriber(self.node,'/robot_position',@robot_position_callback);
+COMboolSub = ros2subscriber(self.node,'/obstacle_overcome_command',@handle_obstacle_overcome_command_callback);
+
 global joint_state
 global current_robot_position
 
 timerHandles.swpPub = swpPub;
 timerHandles.swpPubmsg = swpPubmsg;
+timerHandles.comPub = comPub;
+timerHandles.comPubmsg = comPubmsg;
 timerHandles.swpolytopePub = swpolytopePub;
 timerHandles.swpolytopePubmsg = swpolytopePubmsg;
 
 simTimer = ExampleHelperROSTimer(0.01, {@SWPtimer,timerHandles});
+disp("Ros2 node timer active");

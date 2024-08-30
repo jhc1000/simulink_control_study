@@ -21,6 +21,8 @@ self.slope = [0.0, deg2rad(0), 0.0];
 self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
 
+self.com_vector = [0.115; 0.004; 0.0];
+
 self.q_base = [0.0; deg2rad(0); 0.0];
 % self.p_base = [-2.0; -1.972; 0.50322];
 self.p_base = [-2.0; -1.972; 0.50322];
@@ -351,7 +353,7 @@ for k = 1:size(ai_values, 1)
     % disp(self.tension_lp);
     % disp(W * self.tension_lp);
 end
-self.com_position_togo = mean(self.com_position_lp_results,2) - self.p_base;
+self.com_position_togo = self.com_vector - (mean(self.com_position_lp_results,2) - self.p_base);
 
 %% Plotting
 plotting_tools.plot_robot_space(self);
@@ -368,6 +370,8 @@ swpolytopePubmsg = ros2message(swpolytopePub);
 pause(3); %wait for some time to register publisher on the network
 wheelegJointSub = ros2subscriber(self.node,'/wheelleg_joint_state_desired',@wheelleg_joint_state_callback);
 RobotPositionSub = ros2subscriber(self.node,'/robot_position',@robot_position_callback);
+COMboolSub = ros2subscriber(self.node,'/obstacle_overcome_command',handle_obstacle_overcome_command_callback);
+
 global joint_state
 global current_robot_position
 
@@ -377,3 +381,12 @@ timerHandles.swpolytopePub = swpolytopePub;
 timerHandles.swpolytopePubmsg = swpolytopePubmsg;
 
 simTimer = ExampleHelperROSTimer(0.01, {@SWPtimer,timerHandles});
+
+function wheelleg_joint_state_callback(message)
+global self
+
+command_str = split(message.data)
+if command_str(1) == "contact"
+    self.bool_contact = [str2num(command_str(2)), 
+end
+end

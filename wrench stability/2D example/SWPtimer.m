@@ -5,8 +5,8 @@ global self
 self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
 self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_base);
 
-self.slope = [0.0, deg2rad(0), 0.0];
-self.bool_contact = [1,1,1,1];
+self.slope = [0.0, deg2rad(20), 0.0];
+% self.bool_contact = [1,1,1,1];
 
 %% GRF Estimation
 m = self.totalmass;
@@ -47,7 +47,7 @@ R_gb = math_tools.rpyToRot(self.slope(1), self.slope(2), self.slope(3));
 self.num_contact = sum(self.bool_contact);
 self.c_bool = logical(self.bool_contact);
 p = self.p.s_w(:,self.c_bool);
-% self.mu = 0.6;               % Friction coefficient
+self.mu = 0.7;               % Friction coefficient
 
 tau_min = -self.model.LF_tau_lim;           % Minimum torque constraint
 tau_max = self.model.LF_tau_lim;            % Maximum torque constraint
@@ -192,6 +192,7 @@ for k = 1:size(ai_values, 1)
 
     % Store the resulting com_position_lp and grf
     self.com_position_lp = [x(1); x(2); 0.0];
+    % self.com_position_lp = [x(1); x(2); self.p_base(3)+max(self.p.b_w(3,:))];
     % self.grf = x(3:end);
     self.grf = x(3:end-2);
     self.tension_lp = x(end-1:end);
@@ -201,7 +202,25 @@ for k = 1:size(ai_values, 1)
     self.grf_results{k} = self.grf;
 
 end
-self.com_position_togo = self.com_vector - (mean(self.com_position_lp_results,2) - self.p_base);
+self.com_position_togo = mean(self.com_position_lp_results,2) - self.com_xy_position';
+
+%% closest point of stable region
+Vqp = self.com_position_lp_results; % Polytope vertex들
+robot_pos = self.p_base; % 로봇의 위치
+
+% 모든 점들과 로봇 위치 간의 거리 계산
+distances = sqrt(sum((Vqp - robot_pos).^2, 1));
+
+% 최소 거리를 가지는 점의 인덱스 찾기
+[~, min_idx] = min(distances);
+
+% 가장 가까운 점
+self.x_qp_full = Vqp(:, min_idx);
+
+% 로봇이 이동해야 할 위치 계산
+% self.com_position_togo = self.x_qp_full - [self.p_base(1); self.p_base(2); 0.0];
+% self.com_position_togo = self.x_qp_full - self.com_xy_position';
+
 %% Topic Publish
 t = ros2time(self.node,"now");
 
@@ -209,12 +228,25 @@ t = ros2time(self.node,"now");
 if isvalid(handles.swpPub)
     handles.swpPubmsg.header.frame_id = 'base_link';
     handles.swpPubmsg.header.stamp = t;
-    handles.swpPubmsg.pose.position.x = self.base_movement(1);
-    handles.swpPubmsg.pose.position.y = self.base_movement(2);
-    handles.swpPubmsg.pose.position.z = self.base_movement(3);
+    handles.swpPubmsg.point.x = self.com_position_togo(1);
+    handles.swpPubmsg.point.y = self.com_position_togo(2);
+    handles.swpPubmsg.point.z = 0.0;
 
     % Publish pose message
     send(handles.swpPub,handles.swpPubmsg);
+end
+
+% Update the com message values
+if isvalid(handles.comPub)
+    handles.comPubmsg.header.frame_id = 'base_link';
+    handles.comPubmsg.header.stamp = t;
+    handles.comPubmsg.point.x = self.com_xy_position(1)-self.p_base(1);
+    handles.comPubmsg.point.y = self.com_xy_position(2)-self.p_base(2);
+    handles.comPubmsg.point.z = self.com_xy_position(3)-self.p_base(3);
+
+            
+    % Publish pose message
+    send(handles.comPub,handles.comPubmsg);
 end
 
 % Update the polytope message values
