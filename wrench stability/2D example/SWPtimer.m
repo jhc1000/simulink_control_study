@@ -203,6 +203,8 @@ for k = 1:size(ai_values, 1)
 
 end
 self.com_position_togo = mean(self.com_position_lp_results,2) - self.com_xy_position';
+% 최소 거리 계산
+self.minDist = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
 
 %% closest point of stable region
 Vqp = self.com_position_lp_results; % Polytope vertex들
@@ -220,6 +222,9 @@ self.x_qp_full = Vqp(:, min_idx);
 % 로봇이 이동해야 할 위치 계산
 % self.com_position_togo = self.x_qp_full - [self.p_base(1); self.p_base(2); 0.0];
 % self.com_position_togo = self.x_qp_full - self.com_xy_position';
+% 최소 거리 계산
+minDist = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
+% disp(['최소 거리: ', num2str(minDist)]);
 
 %% Topic Publish
 t = ros2time(self.node,"now");
@@ -242,7 +247,7 @@ if isvalid(handles.comPub)
     handles.comPubmsg.header.stamp = t;
     handles.comPubmsg.point.x = self.com_xy_position(1)-self.p_base(1);
     handles.comPubmsg.point.y = self.com_xy_position(2)-self.p_base(2);
-    handles.comPubmsg.point.z = self.com_xy_position(3)-self.p_base(3);
+    handles.comPubmsg.point.z = self.com_xy_position(3)-self.p_base(3)+min(self.p.b_w(:,4));
 
             
     % Publish pose message
@@ -256,11 +261,19 @@ if isvalid(handles.swpolytopePub)
     for i = 1:width(self.com_position_lp_results)
         handles.swpolytopePubmsg.polygon.points(i).x = single(self.com_position_lp_results(1,i));
         handles.swpolytopePubmsg.polygon.points(i).y = single(self.com_position_lp_results(2,i));
-        handles.swpolytopePubmsg.polygon.points(i).z = single(self.com_position_lp_results(3,i));
+        handles.swpolytopePubmsg.polygon.points(i).z = single(self.com_position_lp_results(3,i)+min(self.p.b_w(:,4)));
     end
 
     % Publish polytope message
     send(handles.swpolytopePub,handles.swpolytopePubmsg);
+end
+
+% Update the stability_distance message values
+if isvalid(handles.stabledPub)
+    handles.stabledPubmsg.data = single(self.minDist);
+
+    % Publish stability_distance message
+    send(handles.stabledPub,handles.stabledPubmsg);
 end
 
 

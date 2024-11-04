@@ -366,6 +366,12 @@ for k = 1:size(ai_values, 1)
     % disp(W * self.tension_lp);
 end
 
+
+% 최소 거리 계산
+minDist = minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
+disp(['최소 거리: ', num2str(minDist)]);
+
+
 %% closest point of stable region
 Vqp = self.com_position_lp_results; % Polytope vertex들
 robot_pos = self.p_base; % 로봇의 위치
@@ -611,6 +617,52 @@ function recursive_for(self, depth, index, num_point)
         % If c_bool(depth) is 0, skip this loop and move to the next depth
         recursive_for(self, depth + 1, [index, 1], num_point);
     end
+end
+
+% 다각형의 꼭지점과 특정 점 간의 최소 거리를 계산하는 함수
+function minDist = minDistanceToPolygon3D(com_position_lp_results, target_point)
+    % 다각형 꼭지점의 개수 (열 개수)
+    n = size(com_position_lp_results, 2);
+    % 초기 최소 거리를 큰 값으로 설정
+    minDist = inf;
+    
+    for i = 1:n
+        % 현재 변의 시작점과 끝점 (3x1 벡터로 설정)
+        start = com_position_lp_results(:, i);
+        if i < n
+            endP = com_position_lp_results(:, i + 1);
+        else
+            endP = com_position_lp_results(:, 1); % 마지막 꼭지점의 다음은 첫 꼭지점으로
+        end
+        
+        % 점과 현재 선분(start-endP) 사이의 거리 계산
+        dist = pointToLineSegmentDistance3D(target_point, start, endP);
+        % 최소 거리 업데이트
+        minDist = min(minDist, dist);
+    end
+end
+
+% 3차원 공간에서 점과 선분 간의 거리를 계산하는 함수
+function dist = pointToLineSegmentDistance3D(point, start, endP)
+    % 선분의 벡터 (3x1 벡터로 설정)
+    lineVec = endP - start;
+    % 시작점과 점(point) 사이의 벡터
+    pointVec = point - start;
+    % 선분의 길이의 제곱
+    lineLen = dot(lineVec, lineVec);
+    
+    if lineLen == 0
+        % 선분이 점인 경우 (start와 endP가 같은 경우)
+        dist = norm(pointVec);
+        return;
+    end
+    
+    % t는 점의 직교 투영 위치를 결정
+    t = max(0, min(1, dot(pointVec, lineVec) / lineLen));
+    % 투영된 점의 좌표
+    projection = start + t * lineVec;
+    % 투영된 점과 점 사이의 거리
+    dist = norm(projection - point);
 end
 
 

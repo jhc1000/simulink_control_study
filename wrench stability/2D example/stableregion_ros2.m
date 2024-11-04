@@ -39,7 +39,7 @@ self.base_movement = [-0.0; 0.0; 0.0];
 % self.base_movement = [0.07631; 0.08888; 0.0];  % rr
 % self.base_movement = [0.09299; 0.15955; 0.0];  % rr
 
-self.bool_contact = [0,1,1,1];
+self.bool_contact = [1,1,1,1];
 
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
@@ -355,6 +355,10 @@ for k = 1:size(ai_values, 1)
 end
 self.com_position_togo = self.com_vector - (mean(self.com_position_lp_results,2) - self.p_base);
 
+% 최소 거리 계산
+self.minDist = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
+disp(['최소 거리: ', num2str(self.minDist)]);
+
 %% Plotting
 plotting_tools.plot_robot_space(self);
 
@@ -369,6 +373,8 @@ comPub = ros2publisher(self.node,'/robot_com','geometry_msgs/PointStamped');
 comPubmsg = ros2message(comPub);
 swpolytopePub = ros2publisher(self.node,'/polytope_swp','geometry_msgs/PolygonStamped');
 swpolytopePubmsg = ros2message(swpolytopePub);
+stabledPub = ros2publisher(self.node,'/stability_distance','std_msgs/Float32');
+stabledPubmsg = ros2message(stabledPub);
 pause(3); %wait for some time to register publisher on the network
 wheelegJointSub = ros2subscriber(self.node,'/wheelleg_joint_state_desired',@wheelleg_joint_state_callback);
 RobotPositionSub = ros2subscriber(self.node,'/robot_position',@robot_position_callback);
@@ -383,6 +389,8 @@ timerHandles.comPub = comPub;
 timerHandles.comPubmsg = comPubmsg;
 timerHandles.swpolytopePub = swpolytopePub;
 timerHandles.swpolytopePubmsg = swpolytopePubmsg;
+timerHandles.stabledPub = stabledPub;
+timerHandles.stabledPubmsg = stabledPubmsg;
 
 simTimer = ExampleHelperROSTimer(0.01, {@SWPtimer,timerHandles});
 disp("Ros2 node timer active");
