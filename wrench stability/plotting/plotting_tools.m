@@ -103,7 +103,7 @@ classdef plotting_tools
             % self.zmp_polytope.plot('color', 'gray', 'alpha', 0.3);
             plot3([self.p_base(1)+0.115, self.com_xy_position(1)],[self.p_base(2)+0.004, self.com_xy_position(2)],[self.p_base(3), self.com_xy_position(3)], '--', 'Color','cyan','LineWidth',3);
             plot3(self.com_xy_position(1),self.com_xy_position(2),self.com_xy_position(3),'.','Color','cyan','Markersize',20);
-            
+
             % plot3(self.com_position_lp(1),self.com_position_lp(2),self.com_position_lp(3),'.','Color','red','Markersize',50);
             plot3(self.com_position_lp_results(1,:),self.com_position_lp_results(2,:),self.com_position_lp_results(3,:),'.','Color','red','Markersize',20);
 
@@ -114,12 +114,12 @@ classdef plotting_tools
             %     % plot3([p(1,i),p(1,i)+0.001*self.grf((3*i-2))],[p(2,i),p(2,i)+0.001*self.grf((3*i-1))],[p(3,i),p(3,i)+0.001*self.grf((3*i))],'-','Color','k','LineWidth',3);
             %     quiver3(p(1,i),p(2,i),p(3,i),0.001*self.grf((3*i-2)),0.001*self.grf((3*i-1)),0.001*self.grf((3*i)),'-','Color','r','LineWidth',5);
             % end
-            
+
             ej = self.p.s_ej;
             % for i=1:width(ej)
             %     quiver3(ej(1,i),ej(2,i),ej(3,i),0.1*self.tension_lp(i)*self.v_norm(1,i),0.1*self.tension_lp(i)*self.v_norm(2,i),0.1*self.tension_lp(i)*self.v_norm(3,i),'--','Color','k','LineWidth',5);
             % end
-            
+
             hold off
 
             xlabel('$\it{x} \rm{[m]}$', 'Interpreter', 'latex');
@@ -1047,6 +1047,43 @@ classdef plotting_tools
                 % 애니메이션 효과를 위한 일시 정지
                 pause(0.25);
             end
+        end
+        function csv = savepolytopecsv(self)
+            % Save only the specific variables used in Python to CSV files
+
+            % Check if the variable exists in self, then save it if it does
+
+            % 1. Save leg_actuation_wrench_polytope_total
+            if isfield(self, 'leg_actuation_wrench_polytope_total')
+                csvwrite('leg_actuation_wrench_polytope_total.csv', self.leg_actuation_wrench_polytope_total);
+                disp('Saved leg_actuation_wrench_polytope_total.csv');
+            end
+
+            % 2. Save leg_contact_wrench_polytope_total
+            if isfield(self, 'leg_contact_wrench_polytope_total')
+                csvwrite('leg_contact_wrench_polytope_total.csv', self.leg_contact_wrench_polytope_total);
+                disp('Saved leg_contact_wrench_polytope_total.csv');
+            end
+
+            % 3. Save force_polytope_total_3d
+            if isfield(self, 'force_polytope_total_3d')
+                csvwrite('force_polytope_total_3d.csv', self.force_polytope_total_3d);
+                disp('Saved force_polytope_total_3d.csv');
+            end
+
+            % 4. Save actuation_polytope_total_3d
+            if isfield(self, 'actuation_polytope_total_3d')
+                csvwrite('actuation_polytope_total_3d.csv', self.actuation_polytope_total_3d);
+                disp('Saved actuation_polytope_total_3d.csv');
+            end
+
+            % 5. Save resultant_wrench vector
+            % Assuming 'resultant_wrench.b' is a field containing the wrench vector
+            if isfield(self, 'resultant_wrench') && isfield(self.resultant_wrench, 'b')
+                csvwrite('resultant_wrench.csv', self.resultant_wrench.b);
+                disp('Saved resultant_wrench.csv');
+            end
+
         end
     end
 end

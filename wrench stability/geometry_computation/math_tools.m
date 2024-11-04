@@ -54,51 +54,65 @@ classdef math_tools
         function D = vstack(A,B)
             D = vertcat(A,B);
         end
-        % 다각형의 꼭지점과 특정 점 간의 최소 거리를 계산하는 함수
-        function minDist = minDistanceToPolygon3D(com_position_lp_results, target_point)
+        function minDist = minDistanceToPolygon3D(polygonVertices, point)
             import math_tools.*
-            % 다각형 꼭지점의 개수 (열 개수)
-            n = size(com_position_lp_results, 2);
-            % 초기 최소 거리를 큰 값으로 설정
+            % Calculate the minimum distance from the point to the polygon edges
+            numVertices = size(polygonVertices, 2);
             minDist = inf;
 
-            for i = 1:n
-                % 현재 변의 시작점과 끝점 (3x1 벡터로 설정)
-                start = com_position_lp_results(:, i);
-                if i < n
-                    endP = com_position_lp_results(:, i + 1);
-                else
-                    endP = com_position_lp_results(:, 1); % 마지막 꼭지점의 다음은 첫 꼭지점으로
-                end
+            % Calculate the normal vector of the polygon's plane
+            v1 = polygonVertices(:, 2) - polygonVertices(:, 1);
+            v2 = polygonVertices(:, 3) - polygonVertices(:, 1);
+            normal = cross(v1, v2);
+            normal = normal / norm(normal); % Normalize the normal vector
 
-                % 점과 현재 선분(start-endP) 사이의 거리 계산
-                dist = pointToLineSegmentDistance3D(target_point, start, endP);
-                % 최소 거리 업데이트
-                minDist = min(minDist, dist);
+            % Project the point onto the plane of the polygon
+            pointToVertex = point - polygonVertices(:, 1);
+            distanceToPlane = dot(pointToVertex, normal);
+            projectedPoint = point - distanceToPlane * normal;
+
+            % Loop through each edge to find the minimum distance
+            for i = 1:numVertices
+                startPoint = polygonVertices(:, i);
+                endPoint = polygonVertices(:, mod(i, numVertices) + 1);
+                % Calculate the distance from the point to the current edge
+                dist = pointToLineSegmentDistance(point, startPoint, endPoint);
+                if dist < minDist
+                    minDist = dist;
+                end
+            end
+
+            % Project polygon vertices to 2D on the plane for point-in-polygon check
+            projVertices = polygonVertices - (normal * (normal' * polygonVertices));
+            projPoint = projectedPoint - (normal * (normal' * projectedPoint));
+
+            % Convert to 2D by discarding the z-component (arbitrary choice based on normal)
+            projVertices2D = projVertices(1:2, :);
+            projPoint2D = projPoint(1:2);
+
+            % Check if the point is inside the polygon using 2D coordinates
+            inPolygon = inpolygon(projPoint2D(1), projPoint2D(2), projVertices2D(1, :), projVertices2D(2, :));
+
+            % If the point is outside, make the minimum distance negative
+            if ~inPolygon
+                minDist = -minDist;
             end
         end
 
-        % 3차원 공간에서 점과 선분 간의 거리를 계산하는 함수
-        function dist = pointToLineSegmentDistance3D(point, start, endP)
-            % 선분의 벡터 (3x1 벡터로 설정)
+        function dist = pointToLineSegmentDistance(point, start, endP)
+            % Calculate the minimum distance between a point and a line segment in 3D
             lineVec = endP - start;
-            % 시작점과 점(point) 사이의 벡터
             pointVec = point - start;
-            % 선분의 길이의 제곱
             lineLen = dot(lineVec, lineVec);
-
             if lineLen == 0
-                % 선분이 점인 경우 (start와 endP가 같은 경우)
+                % Start and end points are the same
                 dist = norm(pointVec);
                 return;
             end
-
-            % t는 점의 직교 투영 위치를 결정
+            % Project point onto the line, clamping to segment endpoints
             t = max(0, min(1, dot(pointVec, lineVec) / lineLen));
-            % 투영된 점의 좌표
-            projection = start + t * lineVec;
-            % 투영된 점과 점 사이의 거리
-            dist = norm(projection - point);
+            projPoint = start + t * lineVec;
+            dist = norm(point - projPoint);
         end
     end
 end

@@ -356,8 +356,20 @@ end
 self.com_position_togo = self.com_vector - (mean(self.com_position_lp_results,2) - self.p_base);
 
 % 최소 거리 계산
-self.minDist = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
-disp(['최소 거리: ', num2str(self.minDist)]);
+self.minDistFromCOM = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
+disp(['최소 거리: ', num2str(self.minDistFromCOM)]);
+
+% Step 1: Compute the Centroid of the Polygon
+vertices = self.com_position_lp_results;  % Assuming this is a 3xN array
+centroid = mean(vertices, 2);  % Calculate centroid by averaging x, y, z coordinates
+
+% Step 2: Calculate the Minimum Distance from the Centroid to the Polygon
+self.minDistFromCentroid = math_tools.minDistanceToPolygon3D(vertices, centroid);
+
+% Display the Results
+disp(['Centroid: ', mat2str(centroid)]);
+disp(['Minimum Distance from Centroid to Polygon: ', num2str(self.minDistFromCentroid)]);
+
 
 %% Plotting
 plotting_tools.plot_robot_space(self);

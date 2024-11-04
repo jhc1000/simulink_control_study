@@ -204,7 +204,7 @@ for k = 1:size(ai_values, 1)
 end
 self.com_position_togo = mean(self.com_position_lp_results,2) - self.com_xy_position';
 % 최소 거리 계산
-self.minDist = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
+self.minDistFromCOM = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
 
 %% closest point of stable region
 Vqp = self.com_position_lp_results; % Polytope vertex들
@@ -222,9 +222,18 @@ self.x_qp_full = Vqp(:, min_idx);
 % 로봇이 이동해야 할 위치 계산
 % self.com_position_togo = self.x_qp_full - [self.p_base(1); self.p_base(2); 0.0];
 % self.com_position_togo = self.x_qp_full - self.com_xy_position';
+
 % 최소 거리 계산
-minDist = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
-% disp(['최소 거리: ', num2str(minDist)]);
+self.minDistFromCOM = math_tools.minDistanceToPolygon3D(self.com_position_lp_results, self.com_xy_position');
+% disp(['최소 거리: ', num2str(self.minDistFromCOM)]);
+
+% Step 1: Compute the Centroid of the Polygon
+vertices = self.com_position_lp_results;  % Assuming this is a 3xN array
+centroid = mean(vertices, 2);  % Calculate centroid by averaging x, y, z coordinates
+
+% Step 2: Calculate the Minimum Distance from the Centroid to the Polygon
+self.minDistFromCentroid = math_tools.minDistanceToPolygon3D(vertices, centroid);
+
 
 %% Topic Publish
 t = ros2time(self.node,"now");
@@ -270,7 +279,7 @@ end
 
 % Update the stability_distance message values
 if isvalid(handles.stabledPub)
-    handles.stabledPubmsg.data = single(self.minDist);
+    handles.stabledPubmsg.data = single(self.minDistFromCOM);
 
     % Publish stability_distance message
     send(handles.stabledPub,handles.stabledPubmsg);

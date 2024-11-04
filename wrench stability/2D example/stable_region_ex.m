@@ -119,12 +119,12 @@ self = geometry_computation.compute_contact_wrench_polytope(self);
 
 %% Ascender Tension Wrench Polytope
 self = geometry_computation.compute_ascender_wrench_polytope(self);
-%
-% self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_contact_wrench_polytope_total, self.ascender_force_polytope);
-% self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
-%
-% self.actuation_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total, self.ascender_actuation_force_polytope);
-% self.actuation_polytope_total_convhull = Polyhedron(self.actuation_polytope_total_3d);
+
+self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_contact_wrench_polytope_total, self.ascender_force_polytope);
+self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
+
+self.actuation_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total, self.ascender_actuation_force_polytope);
+self.actuation_polytope_total_convhull = Polyhedron(self.actuation_polytope_total_3d);
 
 
 %% 2D Region
@@ -543,7 +543,10 @@ plotting_tools.plot_robot_space(self);
 % plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);
-% plotting_tools.plot_fesible_polytopes1(self);
+plotting_tools.plot_fesible_polytopes1(self);
+
+%% Save CSV
+plotting_tools.savepolytopecsv(self);
 
 %% Animation
 % plotting_tools.animation_fesible_polytopes(self);
