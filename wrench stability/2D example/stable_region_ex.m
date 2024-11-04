@@ -126,7 +126,16 @@ self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
 self.actuation_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total, self.ascender_actuation_force_polytope);
 self.actuation_polytope_total_convhull = Polyhedron(self.actuation_polytope_total_3d);
 
+% Create polyhedra from vertices
+P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
+P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
+P3 = Polyhedron(self.force_polytope_total_3d);
+P4 = Polyhedron(self.actuation_polytope_total_3d);
 
+% Compute the intersection of the two polyhedra
+self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
+self.feasible_wrench_polytope_total1_convhull = intersect(P1, P3);
+self.feasible_wrench_polytope_total2_convhull = intersect(P3, P4);
 %% 2D Region
 % Define the support region of the 4-leg contact area
 
@@ -276,7 +285,7 @@ b_ineq = [zeros(size(cxy,1),1);
 %     zeros(size(G,1),size(cxy,1)),G,zeros(size(G,1),size(W,2));
 %     zeros(size(W,1),size(cxy,1)),zeros(size(W,1),size(G,2)),W;
 %     zeros(size(H,1),size(cxy,1)),zeros(size(H,1),size(G,2)),H];
-% 
+%
 % b_ineq = [zeros(size(cxy,1),1);
 %     d;
 %     w;
@@ -287,7 +296,7 @@ b_ineq = [zeros(size(cxy,1),1);
 %     zeros(size(B,1),size(cxy,1)),B,zeros(size(B,1),size(W,2));
 %     zeros(size(G,1),size(cxy,1)),G,zeros(size(G,1),size(W,2));
 %     zeros(size(W,1),size(cxy,1)),zeros(size(W,1),size(G,2)),W];
-% 
+%
 % b_ineq = [zeros(size(cxy,1),1);
 %     zeros(size(B, 1), 1);
 %     d;
@@ -296,7 +305,7 @@ b_ineq = [zeros(size(cxy,1),1);
 % A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2)+size(W,2));
 %     zeros(size(B,1),size(cxy,1)),B,zeros(size(B,1),size(W,2));
 %     zeros(size(W,1),size(cxy,1)),zeros(size(W,1),size(G,2)),W];
-% 
+%
 % b_ineq = [zeros(size(cxy,1),1);
 %     zeros(size(B, 1), 1);
 %     w];
@@ -304,7 +313,7 @@ b_ineq = [zeros(size(cxy,1),1);
 % A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
 %     zeros(size(B,1),size(cxy,1)),B;
 %     zeros(size(G,1),size(cxy,1)),G];
-% 
+%
 % b_ineq = [zeros(size(cxy,1),1);
 %     zeros(size(B, 1), 1);
 %     d];
@@ -312,13 +321,13 @@ b_ineq = [zeros(size(cxy,1),1);
 
 % A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(G,2));
 %     zeros(size(G,1),size(cxy,1)),G];
-% 
+%
 % b_ineq = [zeros(size(cxy,1),1);
 %     d];
 
 % A_ineq = [zeros(size(cxy,1),size(cxy,1)+size(B,2));
 %     zeros(size(B,1),size(cxy,1)),B];
-% 
+%
 % b_ineq = [zeros(size(cxy,1),1);
 %     zeros(size(B, 1), 1)];
 
@@ -336,24 +345,24 @@ grf_results = cell(1, length(ai_values));
 % Loop over each ai value
 for k = 1:size(ai_values, 1)
     ai = ai_values(k, :)';
-    
+
     % Objective function: -ai.' * cxy (maximize ai.' * cxy -> minimize -ai.' * cxy)
     % f_obj = [-ai; -ones(num_f, 1)];
     f_obj = [-ai; -ones(num_f, 1); ones(num_t,1)];
-    
+
     % Solve the linear program
     [x, fval, exitflag, output] = linprog(f_obj, A_ineq, b_ineq, Aeq, beq, lb, ub);
-    
+
     % Store the resulting com_position_lp and grf
     self.com_position_lp = [x(1); x(2); 0.0];
     % self.grf = x(3:end);
     self.grf = x(3:end-2);
     self.tension_lp = x(end-1:end);
-    
+
     % Save results to arrays
     self.com_position_lp_results(:, k) = self.com_position_lp;
     self.grf_results{k} = self.grf;
-    
+
     % Display results for each iteration
     % disp(['Iteration ', num2str(k), ' for ai = [', num2str(ai(1)), ',', num2str(ai(2)), ']']);
     % disp('com_position_lp:');
@@ -384,19 +393,19 @@ bqp = [];
 for i = 1:size(Kqp, 1)
     % 2D 평면에서 두 점의 차이 벡터
     v1 = Vqp(1:2, Kqp(i, 2)) - Vqp(1:2, Kqp(i, 1));
-    
+
     % 법선 벡터 계산 (2D 벡터에 대해)
     normal = [v1(2); -v1(1)];
-    
+
     % 법선 벡터의 방향 조정
     % 2D 평면에서 기준점을 원점으로 변환한 후 벡터 방향 확인
     midpoint = (Vqp(1:2, Kqp(i, 1)) + Vqp(1:2, Kqp(i, 2))) / 2;
     direction = midpoint - robot_pos(1:2);
-    
+
     if dot(normal, direction) > 0
         normal = -normal;
     end
-    
+
     % 불평등 제약 조건 (Ax <= b)
     Aqp(i, :) = normal';
     bqp(i) = dot(normal, Vqp(1:2, Kqp(i, 1)));
@@ -447,13 +456,13 @@ for n_leg_friction_1 = 1:4
                 for n_asc_tension = 1:4
                     % Determine the active friction indices
                     active_friction_indices = [n_leg_friction_1, n_leg_friction_2, n_leg_friction_3, n_leg_friction_4];
-                    
+
                     % Compute num_point carefully
                     num_point = 4^(self.num_contact-0) * (n_leg_friction_1 - 1) ...
-                              + 4^(self.num_contact-1) * (n_leg_friction_2 - 1) ...
-                              + 4^(self.num_contact-2) * (n_leg_friction_3 - 1) ...
-                              + 4^(self.num_contact-3) * (n_leg_friction_4 - 1) ...
-                              + n_asc_tension;
+                        + 4^(self.num_contact-1) * (n_leg_friction_2 - 1) ...
+                        + 4^(self.num_contact-2) * (n_leg_friction_3 - 1) ...
+                        + 4^(self.num_contact-3) * (n_leg_friction_4 - 1) ...
+                        + n_asc_tension;
                     % disp(num_point)
 
                     % Ensure num_point is within bounds
@@ -463,20 +472,20 @@ for n_leg_friction_1 = 1:4
                     end
 
                     points = [self.p.s_w(:,1)';
-                              self.p.s_w(:,2)';
-                              self.p.s_w(:,3)';
-                              self.p.s_w(:,4)';
-                              self.p.s_ej(:,1)';
-                              self.p.s_ej(:,2)'];
+                        self.p.s_w(:,2)';
+                        self.p.s_w(:,3)';
+                        self.p.s_w(:,4)';
+                        self.p.s_ej(:,1)';
+                        self.p.s_ej(:,2)'];
                     forces = zeros(8, 3);
-                    
+
                     % Assign forces based on contact
                     for leg_index = 1:4
                         forces(leg_index, :) = self.leg_contact_force_polytope(active_friction_indices(leg_index), :, leg_index) .* self.bool_contact(leg_index);
                     end
                     forces(5, :) = (self.asc_wrench_matrix(1:3,1) * self.asc_tension_space(n_asc_tension,1))';
                     forces(6, :) = (self.asc_wrench_matrix(1:3,2) * self.asc_tension_space(n_asc_tension,2))';
-                    
+
                     % Add inertia forces due to base acceleration
                     inertia_forces = self.model.totalmass * self.ddot_p_base; % F = ma
                     forces = [forces; inertia_forces'; self.com_force.b_norm'];
@@ -557,115 +566,115 @@ plotting_tools.savepolytopecsv(self);
 %% function etc
 % Helper function to recursively generate nested for loops
 function recursive_for(self, depth, index, num_point)
-    disp("depth : " + string(depth) + ", index : " + mat2str(index) + ", num_point : " + string(num_point))
-    
-    if depth > length(self.bool_contact)
-        % Base case: This will only be reached when all the necessary loops have been generated.
-        
-        for n_asc_tension = 1:4
-            % Calculate the forces based on the current index and n_asc_tension
-            points = [self.p.s_w(:,1)';
-                        self.p.s_w(:,2)';
-                        self.p.s_w(:,3)';
-                        self.p.s_w(:,4)';
-                        self.p.s_ej(:,1)';
-                        self.p.s_ej(:,2)'];
+disp("depth : " + string(depth) + ", index : " + mat2str(index) + ", num_point : " + string(num_point))
 
-            forces = [
-                self.leg_contact_force_polytope(index(1),:,1) .* self.bool_contact(1);
-                self.leg_contact_force_polytope(index(2),:,2) .* self.bool_contact(2);
-                self.leg_contact_force_polytope(index(3),:,3) .* self.bool_contact(3);
-                self.leg_contact_force_polytope(index(4),:,4) .* self.bool_contact(4);
-                (self.asc_wrench_matrix(1:3,1) * self.asc_tension_space(n_asc_tension,1))';
-                (self.asc_wrench_matrix(1:3,2) * self.asc_tension_space(n_asc_tension,2))'
+if depth > length(self.bool_contact)
+    % Base case: This will only be reached when all the necessary loops have been generated.
+
+    for n_asc_tension = 1:4
+        % Calculate the forces based on the current index and n_asc_tension
+        points = [self.p.s_w(:,1)';
+            self.p.s_w(:,2)';
+            self.p.s_w(:,3)';
+            self.p.s_w(:,4)';
+            self.p.s_ej(:,1)';
+            self.p.s_ej(:,2)'];
+
+        forces = [
+            self.leg_contact_force_polytope(index(1),:,1) .* self.bool_contact(1);
+            self.leg_contact_force_polytope(index(2),:,2) .* self.bool_contact(2);
+            self.leg_contact_force_polytope(index(3),:,3) .* self.bool_contact(3);
+            self.leg_contact_force_polytope(index(4),:,4) .* self.bool_contact(4);
+            (self.asc_wrench_matrix(1:3,1) * self.asc_tension_space(n_asc_tension,1))';
+            (self.asc_wrench_matrix(1:3,2) * self.asc_tension_space(n_asc_tension,2))'
             ];
 
-            % Add inertia forces due to base acceleration
-            inertia_forces = self.model.totalmass * self.ddot_p_base; % F = ma
-            forces = [forces; inertia_forces'; self.com_force.b_norm'];
+        % Add inertia forces due to base acceleration
+        inertia_forces = self.model.totalmass * self.ddot_p_base; % F = ma
+        forces = [forces; inertia_forces'; self.com_force.b_norm'];
 
-            % Calculate moments and forces
-            for i = 1:8  % Updated to 8 to include inertia forces
-                if i <= 6
-                    r = points(i, :);   % Position vector of the point
-                else
-                    r = [0.0, 0.0, 0.0]; % Base center of mass assumed at origin
-                end
-                F = forces(i, :);   % Force vector at the point
-                M = cross(r, F);    % Moment generated by the force at this point
-                self.total_moment(num_point,:) = self.total_moment(num_point,:) + M; % Sum the moments
-                self.total_force(num_point,:) = self.total_force(num_point,:) + F;   % Sum the forces
-            end
-
-            % Calculate ZMP (assuming ZMP is on the xy-plane, i.e., z = 0)
-            if self.total_force(num_point, 3) ~= 0
-                self.zmp(1, num_point) = -self.total_moment(num_point, 2) / self.total_force(num_point, 3); % ZMP x-coordinate
-                self.zmp(2, num_point) = self.total_moment(num_point, 1) / self.total_force(num_point, 3); % ZMP y-coordinate
-                self.zmp(3, num_point) = 0; % ZMP z-coordinate (xy-plane)
+        % Calculate moments and forces
+        for i = 1:8  % Updated to 8 to include inertia forces
+            if i <= 6
+                r = points(i, :);   % Position vector of the point
             else
-                % Handle case where the vertical force is zero to avoid division by zero
-                self.zmp(:, num_point) = [NaN; NaN; NaN];
+                r = [0.0, 0.0, 0.0]; % Base center of mass assumed at origin
             end
+            F = forces(i, :);   % Force vector at the point
+            M = cross(r, F);    % Moment generated by the force at this point
+            self.total_moment(num_point,:) = self.total_moment(num_point,:) + M; % Sum the moments
+            self.total_force(num_point,:) = self.total_force(num_point,:) + F;   % Sum the forces
         end
-        return;
-    end
 
-    % Recursive case: Generate for loop only if c_bool(depth) is 1
-    if self.bool_contact(depth) == 1
-        for n = 1:4
-            next_num_point = num_point + (n-1) * 4^(self.num_contact - depth);
-            recursive_for(self, depth + 1, [index, n], next_num_point);
+        % Calculate ZMP (assuming ZMP is on the xy-plane, i.e., z = 0)
+        if self.total_force(num_point, 3) ~= 0
+            self.zmp(1, num_point) = -self.total_moment(num_point, 2) / self.total_force(num_point, 3); % ZMP x-coordinate
+            self.zmp(2, num_point) = self.total_moment(num_point, 1) / self.total_force(num_point, 3); % ZMP y-coordinate
+            self.zmp(3, num_point) = 0; % ZMP z-coordinate (xy-plane)
+        else
+            % Handle case where the vertical force is zero to avoid division by zero
+            self.zmp(:, num_point) = [NaN; NaN; NaN];
         end
-    else
-        % If c_bool(depth) is 0, skip this loop and move to the next depth
-        recursive_for(self, depth + 1, [index, 1], num_point);
     end
+    return;
+end
+
+% Recursive case: Generate for loop only if c_bool(depth) is 1
+if self.bool_contact(depth) == 1
+    for n = 1:4
+        next_num_point = num_point + (n-1) * 4^(self.num_contact - depth);
+        recursive_for(self, depth + 1, [index, n], next_num_point);
+    end
+else
+    % If c_bool(depth) is 0, skip this loop and move to the next depth
+    recursive_for(self, depth + 1, [index, 1], num_point);
+end
 end
 
 % 다각형의 꼭지점과 특정 점 간의 최소 거리를 계산하는 함수
 function minDist = minDistanceToPolygon3D(com_position_lp_results, target_point)
-    % 다각형 꼭지점의 개수 (열 개수)
-    n = size(com_position_lp_results, 2);
-    % 초기 최소 거리를 큰 값으로 설정
-    minDist = inf;
-    
-    for i = 1:n
-        % 현재 변의 시작점과 끝점 (3x1 벡터로 설정)
-        start = com_position_lp_results(:, i);
-        if i < n
-            endP = com_position_lp_results(:, i + 1);
-        else
-            endP = com_position_lp_results(:, 1); % 마지막 꼭지점의 다음은 첫 꼭지점으로
-        end
-        
-        % 점과 현재 선분(start-endP) 사이의 거리 계산
-        dist = pointToLineSegmentDistance3D(target_point, start, endP);
-        % 최소 거리 업데이트
-        minDist = min(minDist, dist);
+% 다각형 꼭지점의 개수 (열 개수)
+n = size(com_position_lp_results, 2);
+% 초기 최소 거리를 큰 값으로 설정
+minDist = inf;
+
+for i = 1:n
+    % 현재 변의 시작점과 끝점 (3x1 벡터로 설정)
+    start = com_position_lp_results(:, i);
+    if i < n
+        endP = com_position_lp_results(:, i + 1);
+    else
+        endP = com_position_lp_results(:, 1); % 마지막 꼭지점의 다음은 첫 꼭지점으로
     end
+
+    % 점과 현재 선분(start-endP) 사이의 거리 계산
+    dist = pointToLineSegmentDistance3D(target_point, start, endP);
+    % 최소 거리 업데이트
+    minDist = min(minDist, dist);
+end
 end
 
 % 3차원 공간에서 점과 선분 간의 거리를 계산하는 함수
 function dist = pointToLineSegmentDistance3D(point, start, endP)
-    % 선분의 벡터 (3x1 벡터로 설정)
-    lineVec = endP - start;
-    % 시작점과 점(point) 사이의 벡터
-    pointVec = point - start;
-    % 선분의 길이의 제곱
-    lineLen = dot(lineVec, lineVec);
-    
-    if lineLen == 0
-        % 선분이 점인 경우 (start와 endP가 같은 경우)
-        dist = norm(pointVec);
-        return;
-    end
-    
-    % t는 점의 직교 투영 위치를 결정
-    t = max(0, min(1, dot(pointVec, lineVec) / lineLen));
-    % 투영된 점의 좌표
-    projection = start + t * lineVec;
-    % 투영된 점과 점 사이의 거리
-    dist = norm(projection - point);
+% 선분의 벡터 (3x1 벡터로 설정)
+lineVec = endP - start;
+% 시작점과 점(point) 사이의 벡터
+pointVec = point - start;
+% 선분의 길이의 제곱
+lineLen = dot(lineVec, lineVec);
+
+if lineLen == 0
+    % 선분이 점인 경우 (start와 endP가 같은 경우)
+    dist = norm(pointVec);
+    return;
+end
+
+% t는 점의 직교 투영 위치를 결정
+t = max(0, min(1, dot(pointVec, lineVec) / lineLen));
+% 투영된 점의 좌표
+projection = start + t * lineVec;
+% 투영된 점과 점 사이의 거리
+dist = norm(projection - point);
 end
 
 

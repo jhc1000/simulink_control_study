@@ -243,7 +243,7 @@ classdef plotting_tools
 
             sgtitle('Feasible Wrench Polytope');
         end
-        function fig = plot_fesible_polytopes1(self)
+        function self = plot_fesible_polytopes1(self)
             % Create polyhedra from vertices
             P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
             P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
@@ -1048,43 +1048,43 @@ classdef plotting_tools
                 pause(0.25);
             end
         end
-        function csv = savepolytopecsv(self)
-            % Save only the specific variables used in Python to CSV files
+        function savepolytopecsv(self)
+            % Save only the specific vertices of the convex hull for each polytope
 
-            % Check if the variable exists in self, then save it if it does
-
-            % 1. Save leg_actuation_wrench_polytope_total
-            if isfield(self, 'leg_actuation_wrench_polytope_total')
-                csvwrite('leg_actuation_wrench_polytope_total.csv', self.leg_actuation_wrench_polytope_total);
-                disp('Saved leg_actuation_wrench_polytope_total.csv');
+            % Check and save vertices of force_polytope_total_convhull if it exists
+            if isfield(self, 'force_polytope_total_convhull') && size(self.force_polytope_total_convhull, 2) == 3
+                % Get the convex hull indices
+                K = convhull(self.force_polytope_total_convhull);
+                % Extract unique vertices based on the hull indices
+                force_polytope_vertices = unique(self.force_polytope_total_convhull(K, :), 'rows');
+                % Save to CSV
+                csvwrite('force_polytope_total_convhull.csv', force_polytope_vertices);
+                disp('Saved force_polytope_total_convhull.csv');
             end
 
-            % 2. Save leg_contact_wrench_polytope_total
-            if isfield(self, 'leg_contact_wrench_polytope_total')
-                csvwrite('leg_contact_wrench_polytope_total.csv', self.leg_contact_wrench_polytope_total);
-                disp('Saved leg_contact_wrench_polytope_total.csv');
+            % Check and save vertices of actuation_polytope_total_convhull if it exists
+            if isfield(self, 'actuation_polytope_total_convhull') && size(self.actuation_polytope_total_convhull, 2) == 3
+                % Get the convex hull indices
+                K = convhull(self.actuation_polytope_total_convhull);
+                % Extract unique vertices based on the hull indices
+                actuation_polytope_vertices = unique(self.actuation_polytope_total_convhull(K, :), 'rows');
+                % Save to CSV
+                csvwrite('actuation_polytope_total_convhull.csv', actuation_polytope_vertices);
+                disp('Saved actuation_polytope_total_convhull.csv');
             end
 
-            % 3. Save force_polytope_total_3d
-            if isfield(self, 'force_polytope_total_3d')
-                csvwrite('force_polytope_total_3d.csv', self.force_polytope_total_3d);
-                disp('Saved force_polytope_total_3d.csv');
+            % Check and save vertices of feasible_wrench_polytope_total2_convhull if it exists
+            if isfield(self, 'feasible_wrench_polytope_total2_convhull') && size(self.feasible_wrench_polytope_total2_convhull, 2) == 3
+                % Get the convex hull indices
+                K = convhull(self.feasible_wrench_polytope_total2_convhull);
+                % Extract unique vertices based on the hull indices
+                feasible_wrench_polytope_vertices = unique(self.feasible_wrench_polytope_total2_convhull(K, :), 'rows');
+                % Save to CSV
+                csvwrite('feasible_wrench_polytope_total2_convhull.csv', feasible_wrench_polytope_vertices);
+                disp('Saved feasible_wrench_polytope_total2_convhull.csv');
             end
-
-            % 4. Save actuation_polytope_total_3d
-            if isfield(self, 'actuation_polytope_total_3d')
-                csvwrite('actuation_polytope_total_3d.csv', self.actuation_polytope_total_3d);
-                disp('Saved actuation_polytope_total_3d.csv');
-            end
-
-            % 5. Save resultant_wrench vector
-            % Assuming 'resultant_wrench.b' is a field containing the wrench vector
-            if isfield(self, 'resultant_wrench') && isfield(self.resultant_wrench, 'b')
-                csvwrite('resultant_wrench.csv', self.resultant_wrench.b);
-                disp('Saved resultant_wrench.csv');
-            end
-
         end
+
     end
 end
 
