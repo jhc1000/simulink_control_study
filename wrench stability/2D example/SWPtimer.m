@@ -5,7 +5,7 @@ global self
 self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
 self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_base);
 
-self.slope = [0.0, deg2rad(20), 0.0];
+self.slope = [0.0, deg2rad(45), 0.0];
 % self.bool_contact = [1,1,1,1];
 
 %% GRF Estimation

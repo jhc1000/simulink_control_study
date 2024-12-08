@@ -379,13 +379,13 @@ disp("Ros2 node initiating");
 setenv("ROS_DOMAIN_ID","13")
 self.node = ros2node("/stable_region",13);
 
-swpPub = ros2publisher(self.node,'/pose_swp','geometry_msgs/PointStamped');
+swpPub = ros2publisher(self.node,'/stable_region/pose_swp','geometry_msgs/PointStamped');
 swpPubmsg = ros2message(swpPub);
-comPub = ros2publisher(self.node,'/robot_com','geometry_msgs/PointStamped');
+comPub = ros2publisher(self.node,'/stable_region/robot_com','geometry_msgs/PointStamped');
 comPubmsg = ros2message(comPub);
-swpolytopePub = ros2publisher(self.node,'/polytope_swp','geometry_msgs/PolygonStamped');
+swpolytopePub = ros2publisher(self.node,'/stable_region/polytope_swp','geometry_msgs/PolygonStamped');
 swpolytopePubmsg = ros2message(swpolytopePub);
-stabledPub = ros2publisher(self.node,'/stability_distance','std_msgs/Float32');
+stabledPub = ros2publisher(self.node,'/stable_region/stability_distance','std_msgs/Float32');
 stabledPubmsg = ros2message(stabledPub);
 pause(3); %wait for some time to register publisher on the network
 wheelegJointSub = ros2subscriber(self.node,'/wheelleg_joint_state_desired',@wheelleg_joint_state_callback);

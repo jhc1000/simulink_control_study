@@ -22,11 +22,11 @@ classdef wlar_kinematics
             self.z_b2hr = 0.0605;     % b2hr
             self.z_hr2hp = 0.094; % hr2hp
             self.z_hp2k = 0.3011;   % hp2k
-            self.z_k2w = 0.3189;    % k2w
+            self.z_k2w = 0.3539;    % k2w
             self.y_b2hr = 0.283;   % b2hr
             self.y_hr2hp = 0.058;  % hr2hp
             self.y_hp2k = -0.0;   % hp2k
-            self.y_k2w = 0.053;    % k2w 0.057
+            self.y_k2w = 0.0458;    % k2w 
             self.n1 = [1; 1; -1; -1];
             self.n2 = [1; -1; 1; -1];
     

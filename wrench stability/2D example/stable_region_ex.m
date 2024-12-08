@@ -20,7 +20,7 @@ self.slope = [0.0, deg2rad(15), 0.0];
 self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
 self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
 
-self.q_base = [0.0; deg2rad(-0); 0.0];
+self.q_base = [0.0; deg2rad(10); 0.0];
 % self.p_base = [-2.0; -1.972; 0.50322];
 self.p_base = [-2.0; -1.972; 0.50322];
 % self.p_base = [-2.0; -1.972; 0.38545];
@@ -36,7 +36,7 @@ self.base_movement = [-0.0; 0.0; 0.0];
 % self.base_movement = [0.07631; 0.08888; 0.0];  % rr
 % self.base_movement = [0.09299; 0.15955; 0.0];  % rr
 
-self.bool_contact = [0,1,1,1];
+self.bool_contact = [1,1,1,1];
 
 self.dot_q_base = [0.0; 0.0; 0.0];
 self.dot_p_base = [0.0; 0.0; 0.0];
@@ -116,26 +116,26 @@ self.com_xy_position = p1 + t * (p2 - p1);
 
 %% Contact Wrench Cone
 self = geometry_computation.compute_contact_wrench_polytope(self);
-
-%% Ascender Tension Wrench Polytope
+% 
+% %% Ascender Tension Wrench Polytope
 self = geometry_computation.compute_ascender_wrench_polytope(self);
-
-self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_contact_wrench_polytope_total, self.ascender_force_polytope);
-self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
-
-self.actuation_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total, self.ascender_actuation_force_polytope);
-self.actuation_polytope_total_convhull = Polyhedron(self.actuation_polytope_total_3d);
-
-% Create polyhedra from vertices
-P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
-P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
-P3 = Polyhedron(self.force_polytope_total_3d);
-P4 = Polyhedron(self.actuation_polytope_total_3d);
-
-% Compute the intersection of the two polyhedra
-self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
-self.feasible_wrench_polytope_total1_convhull = intersect(P1, P3);
-self.feasible_wrench_polytope_total2_convhull = intersect(P3, P4);
+% 
+% self.force_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_contact_wrench_polytope_total, self.ascender_force_polytope);
+% self.force_polytope_total_convhull = Polyhedron(self.force_polytope_total_3d);
+% 
+% self.actuation_polytope_total_3d = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total, self.ascender_actuation_force_polytope);
+% self.actuation_polytope_total_convhull = Polyhedron(self.actuation_polytope_total_3d);
+% 
+% % Create polyhedra from vertices
+% P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
+% P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
+% P3 = Polyhedron(self.force_polytope_total_3d);
+% P4 = Polyhedron(self.actuation_polytope_total_3d);
+% 
+% % Compute the intersection of the two polyhedra
+% self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
+% self.feasible_wrench_polytope_total1_convhull = intersect(P1, P3);
+% self.feasible_wrench_polytope_total2_convhull = intersect(P3, P4);
 %% 2D Region
 % Define the support region of the 4-leg contact area
 
@@ -552,10 +552,10 @@ plotting_tools.plot_robot_space(self);
 % plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);
-plotting_tools.plot_fesible_polytopes1(self);
+% plotting_tools.plot_fesible_polytopes1(self);
 
 %% Save CSV
-plotting_tools.savepolytopecsv(self);
+% plotting_tools.savepolytopecsv(self);
 
 %% Animation
 % plotting_tools.animation_fesible_polytopes(self);
