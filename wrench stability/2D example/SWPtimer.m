@@ -4,6 +4,8 @@ global self
 %% Stable Region
 self = self.kinematics.forward_kinematics(self, self.q_base, self.p_base);
 self = self.kinematics.ascender_forward_kinematics(self, self.q_base, self.p_base);
+self = self.kinematics.Jacobians(self, self.dot_q_base, self.dot_p_base);
+self = self.kinematics.ascender_Jacobians(self, self.dot_q_base, self.dot_p_base);
 
 self.slope = [0.0, deg2rad(45), 0.0];
 % self.bool_contact = [1,1,1,1];
