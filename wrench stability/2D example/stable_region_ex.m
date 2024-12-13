@@ -15,14 +15,14 @@ self = self.model.init(self);
 self = self.kinematics.init(self);
 self = self.dynamics.init(self);
 
-self.slope = [0.0, deg2rad(15), 0.0];
+self.slope = [0.0, deg2rad(20), 0.0];
 
-self.anchor.position(:,:,1) = [0.0; 0.0; 0.250];
-self.anchor.position(:,:,2) = [0.0; -3.944; 0.250];
+self.anchor.position(:,:,1) = [-0.2; 0.0; 0.240];
+self.anchor.position(:,:,2) = [-0.2; -4.0; 0.240];
 
-self.q_base = [0.0; deg2rad(10); 0.0];
+self.q_base = [0.0; deg2rad(0); 0.0];
 % self.p_base = [-2.0; -1.972; 0.50322];
-self.p_base = [-2.0; -1.972; 0.50322];
+self.p_base = [-1.5; -2.0; 0.491];
 % self.p_base = [-2.0; -1.972; 0.38545];
 % self.p_base = [-1.0; -3.0; 0.50322];
 % self.p_base = [-4.0; -2.5; 0.50322];
@@ -49,12 +49,12 @@ self.ddot_p_base = [0.0; 0.0; 0.0];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hr = [deg2rad(1); deg2rad(-1); deg2rad(-1); deg2rad(1)];
 self.q.hr = [deg2rad(0); deg2rad(-0); deg2rad(-0); deg2rad(0)];
-% self.q.hp = [deg2rad(-54.877566198798185); deg2rad(-54.877566198798185); deg2rad(54.877566198798185); deg2rad(54.877566198798185)];
-% self.q.k = [deg2rad(81.82706571003209); deg2rad(81.82706571003209); deg2rad(-81.82706571003209); deg2rad(-81.82706571003209)];
-self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
-self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
-% self.q.hp = [deg2rad(-45); deg2rad(-45); deg2rad(45); deg2rad(45)];
-% self.q.k = [deg2rad(75); deg2rad(75); deg2rad(-75); deg2rad(-75)];
+self.q.hp = [deg2rad(-50.64); deg2rad(-50.64); deg2rad(50.64); deg2rad(50.64)];
+self.q.k = [deg2rad(91.77); deg2rad(91.77); deg2rad(-91.77); deg2rad(-91.77)];
+% self.q.hp = [deg2rad(-50); deg2rad(-50); deg2rad(50); deg2rad(50)];
+% self.q.k = [deg2rad(80); deg2rad(80); deg2rad(-80); deg2rad(-80)];
+% self.q.hp = [deg2rad(-0); deg2rad(-0); deg2rad(0); deg2rad(0)];
+% self.q.k = [deg2rad(0); deg2rad(0); deg2rad(-0); deg2rad(-0)];
 % self.q.hr = [deg2rad(45); deg2rad(-45); deg2rad(-45); deg2rad(45)];
 % self.q.hp = [deg2rad(-80); deg2rad(-80); deg2rad(80); deg2rad(80)];
 % self.q.k = [deg2rad(100); deg2rad(100); deg2rad(-100); deg2rad(-100)];
@@ -149,9 +149,9 @@ R_gb = math_tools.rpyToRot(self.slope(1), self.slope(2), self.slope(3));
 
 self.num_contact = sum(self.bool_contact);
 self.c_bool = logical(self.bool_contact);
-p = self.p.s_w(:,self.c_bool);
+p = self.p.b_w(:,self.c_bool);
 % disp(p)
-% self.mu = 0.6;               % Friction coefficient
+self.mu = 0.6;               % Friction coefficient
 
 tau_min = -self.model.LF_tau_lim;           % Minimum torque constraint
 tau_max = self.model.LF_tau_lim;            % Maximum torque constraint
@@ -159,7 +159,7 @@ tau_max = self.model.LF_tau_lim;            % Maximum torque constraint
 asc_tau_min = -self.ASC_L_tau_lim;
 asc_tau_max = self.ASC_L_tau_lim;
 
-ej = self.p.s_ej;
+ej = self.p.b_ej;
 self.v_norm = [(self.v.b_ej_anc(:,1))/norm(self.v.b_ej_anc(:,1)), (self.v.b_ej_anc(:,2))/norm(self.v.b_ej_anc(:,2))];
 
 t_min = self.ASC_L_tension_lim(1);             % Minimum force constraint
@@ -548,7 +548,7 @@ self.zmp_polytope = Polyhedron(self.zmp');
 %% Plotting
 plotting_tools.plot_robot_space(self);
 % plotting_tools.plot_robot_base(self);
-% plotting_tools.plot_force_polytopes(self);
+plotting_tools.plot_force_polytopes(self);
 % plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);

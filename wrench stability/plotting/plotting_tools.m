@@ -105,9 +105,9 @@ classdef plotting_tools
             plot3(self.com_xy_position(1),self.com_xy_position(2),self.com_xy_position(3),'.','Color','cyan','Markersize',20);
 
             % plot3(self.com_position_lp(1),self.com_position_lp(2),self.com_position_lp(3),'.','Color','red','Markersize',50);
-            plot3(self.com_position_lp_results(1,:),self.com_position_lp_results(2,:),self.com_position_lp_results(3,:),'.','Color','red','Markersize',20);
+            plot3(self.com_position_lp_results(1,:)+self.p_base(1),self.com_position_lp_results(2,:)+self.p_base(2),self.com_position_lp_results(3,:),'.','Color','red','Markersize',20);
 
-            P0 = Polyhedron(self.com_position_lp_results');
+            P0 = Polyhedron(self.com_position_lp_results'+[self.p_base(1); self.p_base(2); 0.0]');
             P0.plot('color', 'red', 'alpha', 0.3);
             p = self.p.s_w(:,self.c_bool);
             % for i=1:width(p)

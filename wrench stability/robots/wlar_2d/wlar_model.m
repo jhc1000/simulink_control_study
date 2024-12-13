@@ -22,13 +22,13 @@ classdef wlar_model
             % K = Knee 
             % W = wheel
     
-            self.LF_tau_lim = [96.0 150.0 90.0];  % HR, HP, K
-            self.LH_tau_lim = [96.0 150.0 90.0];  % HR, HP, K
-            self.RF_tau_lim = [96.0 150.0 90.0];  % HR, HP, K
-            self.RH_tau_lim = [96.0 150.0 90.0];  % HR, HP, K
+            self.LF_tau_lim = [120.0 150.0 120.0];  % HR, HP, K
+            self.LH_tau_lim = [120.0 150.0 120.0];  % HR, HP, K
+            self.RF_tau_lim = [120.0 150.0 120.0];  % HR, HP, K
+            self.RH_tau_lim = [120.0 150.0 120.0];  % HR, HP, K
 
-            self.ASC_L_tension_lim = [25.0 1000.0];  % min, max 
-            self.ASC_R_tension_lim = [25.0 1000.0];  % min, max
+            self.ASC_L_tension_lim = [75.0 400.0];  % min, max 
+            self.ASC_R_tension_lim = [75.0 400.0];  % min, max
 
 
             self.ASC_L_tau_lim = 191.0; % Nm
