@@ -271,7 +271,7 @@ classdef plotting_tools
             % ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
             % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[N]}$', 'Interpreter', 'latex');
+            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             axis equal
             xlim([-5000 5000]); ylim([-5000 5000]); zlim([-5000 5000]);
@@ -289,7 +289,7 @@ classdef plotting_tools
             % ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
             % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[N]}$', 'Interpreter', 'latex');
+            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             axis equal
             xlim([-5000 5000]); ylim([-5000 5000]); zlim([-100 5000]);
@@ -318,12 +318,75 @@ classdef plotting_tools
             % ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
             % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{\tau_y} \rm{[N]}$', 'Interpreter', 'latex');
+            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             axis equal
             xlim([-5000 5000]); ylim([-5000 5000]); zlim([-100 5000]);
             view(30,10);
             hold off
+        end
+        function self = plot_fesible_polytopes2(self)
+            % Create polyhedra from vertices
+            P1 = Polyhedron(self.leg_actuation_wrench_polytope_total_3d);
+            P2 = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
+            P3 = Polyhedron(self.force_polytope_total_3d);
+            P4 = Polyhedron(self.actuation_polytope_total_3d);
+
+            % Compute the intersection of the two polyhedra
+            self.feasible_wrench_polytope_total_convhull = intersect(P1, P2);
+            self.feasible_wrench_polytope_total1_convhull = intersect(P1, P3);
+            self.feasible_wrench_polytope_total2_convhull = intersect(P3, P4);
+
+            % Projection dimensions
+            projection_dims_3d = [1, 2, 3];
+            projection_dims_2d = [1, 2];  % Example: projection onto the xy-plane
+
+            fig = figure;
+
+            % Plot 1: Actuation Wrench Polytope
+            subplot(1,3,1);
+            hold on;
+            P4.plot('color', 'green', 'alpha', 0.5);
+            title('Actuation Wrench Polytope', 'FontSize', 30, 'FontName', 'Arial');
+            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            axis equal;
+            xlim([-5000 5000]);
+            ylim([-5000 5000]);
+            zlim([-5000 5000]);
+            view(30,10);
+            hold off;
+
+            % Plot 2: Contact&Tension Wrench Polytope
+            subplot(1,3,2);
+            hold on;
+            P3.plot('color', 'red', 'alpha', 0.5);
+            title('Contact&Tension Wrench Polytope', 'FontSize', 30, 'FontName', 'Arial');
+            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            axis equal;
+            xlim([-5000 5000]);
+            ylim([-5000 5000]);
+            zlim([-100 5000]);
+            view(30,10);
+            hold off;
+
+            % Plot 3: Stable Wrench Polytope (Intersection)
+            subplot(1,3,3);
+            hold on;
+            self.feasible_wrench_polytope_total2_convhull.plot('color', 'blue', 'alpha', 0.5);
+            title('Stable Wrench Polytope', 'FontSize', 30, 'FontName', 'Arial');
+            xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            ylabel('$\it{\tau_y} \rm{[Nm]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex', 'FontSize', 20, 'FontName', 'Arial');
+            axis equal;
+            xlim([-5000 5000]);
+            ylim([-5000 5000]);
+            zlim([-100 5000]);
+            view(30,10);
+            hold off;
         end
         function self = plot_ascender_force_polytopes(self)
             self = geometry_computation.compute_ascender_wrench_polytope(self);

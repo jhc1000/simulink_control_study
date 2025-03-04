@@ -554,7 +554,8 @@ plotting_tools.plot_robot_space(self);
 % plotting_tools.plot_ascender_force_polytopes(self);
 % plotting_tools.plot_friction_polytopes(self);
 % plotting_tools.plot_fesible_polytopes(self);
-plotting_tools.plot_fesible_polytopes1(self);
+% plotting_tools.plot_fesible_polytopes1(self);
+plotting_tools.plot_fesible_polytopes2(self);
 
 %% Save CSV
 % plotting_tools.savepolytopecsv(self);
