@@ -76,8 +76,8 @@ classdef geometry_computation
                     self.leg_actuation_wrench_polytope_total = geometry_computation.minkowskiSum(self.leg_actuation_wrench_polytope_total_3d,[self.leg_actuation_wrench_polytope(:,1,i) self.leg_actuation_wrench_polytope(:,2,i) self.leg_actuation_wrench_polytope(:,3,i)]);
                 end
             end
-            % self.leg_actuation_wrench_polytope_total_convhull = Polyhedron(self.leg_actuation_wrench_polytope_total_3d);
-            self.leg_actuation_wrench_polytope_total_convhull = Polyhedron(self.leg_actuation_wrench_polytope_total);
+            self.leg_actuation_wrench_polytope_total_convhull = Polyhedron(self.leg_actuation_wrench_polytope_total_3d);
+            % self.leg_actuation_wrench_polytope_total_convhull = Polyhedron(self.leg_actuation_wrench_polytope_total);
         end
         function self = compute_contact_wrench_polytope(self)
             self.leg_friction_space(:,:,1) = 1000.*[self.mu self.mu 1.0;
@@ -120,8 +120,8 @@ classdef geometry_computation
                     self.leg_contact_wrench_polytope_total = geometry_computation.minkowskiSum(self.leg_contact_wrench_polytope_total,[self.leg_contact_wrench_polytope(:,1,i) self.leg_contact_wrench_polytope(:,2,i) self.leg_contact_wrench_polytope(:,3,i)]);
                 end
             end
-            % self.leg_contact_wrench_polytope_total_convhull = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
-            self.leg_contact_wrench_polytope_total_convhull = Polyhedron(self.leg_contact_wrench_polytope_total);
+            self.leg_contact_wrench_polytope_total_convhull = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
+            % self.leg_contact_wrench_polytope_total_convhull = Polyhedron(self.leg_contact_wrench_polytope_total);
         end
         function self = compute_ascender_wrench_polytope(self)
             self.asc_tension_space = [self.ASC_L_tension_lim(1) self.ASC_R_tension_lim(1);
@@ -146,8 +146,8 @@ classdef geometry_computation
                 self.ascender_actuation_force_polytope(i,:) = ((self.asc_psuedo_inverse_jacobian(:,1:3).'*self.asc_torque_space(i,:).').');
             end
             self.asc_wrench_polytope_3d = [self.ascender_wrench_polytope(:,1) self.ascender_wrench_polytope(:,5) self.ascender_wrench_polytope(:,3)];
-            % self.asc_wrench_polytope_convhull = Polyhedron(self.asc_wrench_polytope_3d);
-            self.asc_wrench_polytope_convhull = Polyhedron(self.ascender_force_polytope);
+            self.asc_wrench_polytope_convhull = Polyhedron(self.asc_wrench_polytope_3d);
+            % self.asc_wrench_polytope_convhull = Polyhedron(self.ascender_force_polytope);
             self.ascender_actuation_force_polytope_convhull = Polyhedron(self.ascender_actuation_force_polytope);
         end
         function Yfa = feasibleRegionIP(self, cxy, cz, alpha, R_sb, p, n, mu, tau_min, tau_max, ej, v, t_min, t_max, epsilon)

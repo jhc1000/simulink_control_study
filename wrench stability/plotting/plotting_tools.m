@@ -245,8 +245,10 @@ classdef plotting_tools
         end
         function self = plot_fesible_polytopes1(self)
             % Create polyhedra from vertices
-            P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
-            P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
+            % P1 = Polyhedron(self.leg_actuation_wrench_polytope_total);
+            % P2 = Polyhedron(self.leg_contact_wrench_polytope_total);
+            P1 = Polyhedron(self.leg_actuation_wrench_polytope_total_3d);
+            P2 = Polyhedron(self.leg_contact_wrench_polytope_total_3d);
             P3 = Polyhedron(self.force_polytope_total_3d);
             P4 = Polyhedron(self.actuation_polytope_total_3d);
 
@@ -261,31 +263,37 @@ classdef plotting_tools
             fig = figure;
             subplot(1,3,1);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
+            % plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            % quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             P4.plot('color', 'green', 'alpha', 0.5);
             title('Actuation Wrench Polytope')
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+            ylabel('$\it{\tau_y} \rm{[N]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            % axis equal
-            % xlim([-10000 10000]); ylim([-10000 10000]); zlim([-10000 10000]);
-            view(-60,10);
+            axis equal
+            xlim([-5000 5000]); ylim([-5000 5000]); zlim([-5000 5000]);
+            view(30,10);
             hold off
 
             % Plot the second convex hull
             subplot(1,3,2);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
+            % plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(5), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            % quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             P3.plot('color', 'red', 'alpha', 0.5);
             title('Contact&Tension Wrench Polytope')
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+            ylabel('$\it{\tau_y} \rm{[N]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            % axis equal
-            xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-60,10);
+            axis equal
+            xlim([-5000 5000]); ylim([-5000 5000]); zlim([-100 5000]);
+            view(30,10);
             hold off
 
             % % Plot the second convex hull
@@ -295,23 +303,26 @@ classdef plotting_tools
             % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
             % ylabel('$\it{F_y} \rm{[Nm]}$', 'Interpreter', 'latex');
             % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            % % axis equal
-            % % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-            % % view(-45,30);
+            axis equal
+            xlim([-5000 5000]); ylim([-5000 5000]); zlim([-100 5000]);
+            view(30,10);
 
             % Plot the intersection
             subplot(1,3,3);
             hold on
-            plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
-            quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
+            % plot3(self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'.','Color','cyan','Markersize',30);
+            % quiver3(0,0,0,self.resultant_wrench.b(1), self.resultant_wrench.b(2), self.resultant_wrench.b(3),'Color','cyan','LineWidth',3);
             self.feasible_wrench_polytope_total2_convhull.plot('color', 'blue', 'alpha', 0.5);
             title('Stable Wrench Polytope')
+            % xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
+            % ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+            % zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
             xlabel('$\it{F_x} \rm{[N]}$', 'Interpreter', 'latex');
-            ylabel('$\it{F_y} \rm{[N]}$', 'Interpreter', 'latex');
+            ylabel('$\it{\tau_y} \rm{[N]}$', 'Interpreter', 'latex');
             zlabel('$\it{F_z} \rm{[N]}$', 'Interpreter', 'latex');
-            % axis equal;
-            % xlim([-3000 3000]); ylim([-3000 3000]); zlim([-0 10000]);
-            view(-60,10);
+            axis equal
+            xlim([-5000 5000]); ylim([-5000 5000]); zlim([-100 5000]);
+            view(30,10);
             hold off
         end
         function self = plot_ascender_force_polytopes(self)
